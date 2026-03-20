@@ -1,0 +1,19 @@
+# render.yaml — Configuración de deploy en Render
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Para que Render instale Node.js en el servicio Python,
+# necesitamos agregarlo al build command.
+
+services:
+  - type: web
+    name: manguito
+    runtime: python
+    buildCommand: |
+      pip install -r requirements.txt
+      curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+      apt-get install -y nodejs
+      cd frontend && npm install && npm run build
+    startCommand: python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"

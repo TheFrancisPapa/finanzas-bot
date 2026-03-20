@@ -1,0 +1,21 @@
+# Archivos con datos sensibles (NUNCA subir a GitHub)
+.env
+finanzas.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema
+*.log
+Thumbs.db
+.DS_Store
+
+# Frontend (React/Vite)
+frontend/node_modules/
+frontend/dist/
