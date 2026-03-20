@@ -16,67 +16,37 @@ from core.config import config
 
 logger = logging.getLogger('Manguito-API')
 
-# Usamos el JWT_SECRET como secreto
-_SECRET = config.JWT_SECRET.encode()
+import jwt
+from datetime import datetime, timedelta, timezone
 
-
-def _b64_encode(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
-
-
-def _b64_decode(s: str) -> bytes:
-    padding = 4 - len(s) % 4
-    s += '=' * padding
-    return base64.urlsafe_b64decode(s)
-
-
-def generar_token(user_id: int) -> str:
-    """
-    Genera un token firmado para un usuario con expiración de 30 días.
-    Formato: base64(payload).base64(signature)
-    """
-    payload = json.dumps({
-        'uid': user_id,
-        'iat': int(time.time()),
-        'exp': int(time.time()) + (30 * 24 * 60 * 60),
-    }).encode()
-
-    payload_b64 = _b64_encode(payload)
-    signature = hmac.new(_SECRET, payload_b64.encode(), hashlib.sha256).digest()
-    sig_b64 = _b64_encode(signature)
-
-    return f"{payload_b64}.{sig_b64}"
-
+# --- Configuración JWT ---
+JWT_SECRET = config.JWT_SECRET
+ALGORITHM = config.ALGORITHM
 
 def crear_token_jwt(user_id: int) -> str:
-    """Alias para compatibilidad con la guía técnica."""
-    return generar_token(user_id)
-
+    """ Genera un token JWT firmado para un usuario con expiración de 30 días. """
+    expire = datetime.now(timezone.utc) + timedelta(days=30)
+    to_encode = {
+        "exp": expire,
+        "sub": str(user_id),
+        "iat": datetime.now(timezone.utc)
+    }
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
+    return encoded_jwt
 
 def verificar_token(token: str) -> int | None:
-    """
-    Verifica un token y retorna el user_id, o None si es inválido o expiró.
-    """
+    """ Verifica un token y retorna el user_id, o None si es inválido o expiró. """
     try:
-        parts = token.split('.')
-        if len(parts) != 2:
-            return None
-
-        payload_b64, sig_b64 = parts
-        expected_sig = hmac.new(_SECRET, payload_b64.encode(), hashlib.sha256).digest()
-
-        if not hmac.compare_digest(expected_sig, _b64_decode(sig_b64)):
-            return None
-
-        payload = json.loads(_b64_decode(payload_b64))
-        if payload.get('exp') and time.time() > payload['exp']:
-            return None  # Token expirado
-            
-        return payload.get('uid')
-
-    except Exception as e:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        return int(user_id) if user_id else None
+    except jwt.PyJWTError as e:
         logger.warning(f"Token inválido: {e}")
         return None
+
+def generar_token(user_id: int) -> str:
+    """Alias para compatibilidad."""
+    return crear_token_jwt(user_id)
 
 import bcrypt
 
