@@ -79,17 +79,17 @@ def crear_app() -> FastAPI:
 
         # SPA Fallback: cualquier ruta que no sea /api/* sirve el index.html
         @app.get("/{catchall:path}")
-        async def serve_react_app(catchall: str):
-            # Si la ruta existe como archivo real (ej: manifest.json, favicon.ico), lo servimos
+        async def serve_spa(catchall: str):
+            """Manejo del Catch-All para React SPA."""
+            if catchall.startswith("api/"):
+                return {"detail": "Endpoint de API no encontrado"}
+            
+            # Verificación de archivos estáticos en la raíz (ej: manifest.json)
             file_path = os.path.join(frontend_dist, catchall.strip("/"))
             if os.path.isfile(file_path):
                 return FileResponse(file_path)
-            
-            # Si no empieza con api/, devolvemos index.html para que React maneje la ruta
-            if not catchall.startswith("api/"):
-                return FileResponse(os.path.join(frontend_dist, "index.html"))
-            
-            return {"detail": "API endpoint no encontrado"}
+                
+            return FileResponse(os.path.join(frontend_dist, "index.html"))
     else:
         logger.warning(f"⚠️ Frontend dist no encontrado en: {frontend_dist}. Solo funcionará la API.")
         

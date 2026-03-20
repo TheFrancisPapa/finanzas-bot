@@ -18,8 +18,9 @@ async def main():
     await db.init_db()
     
     # 2. Iniciar Servidor FastAPI
-    # El puerto se toma de la variable de entorno PORT (Render) o 8081 por defecto
-    port = int(os.environ.get("PORT", getattr(config, 'PORT_WEB', 8081)))
+    # Render inyecta el puerto en la variable de entorno PORT. 
+    # Si forzamos el 8081, Render dará Timeout.
+    port = int(os.getenv("PORT", 8000))
     
     app = crear_app()
     
