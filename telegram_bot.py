@@ -248,9 +248,12 @@ def iniciar_telegram():
     app.add_error_handler(error_handler)
 
     # ===============================
-    #  HEALTH CHECK SERVER
+    #  HEALTH CHECK SERVER (opcional)
     # ===============================
-    if not _health_server_started:
+    # En Render solo se puede exponer un puerto ($PORT), el cual ya usa FastAPI.
+    # El health check del bot es redundante en este caso.
+    is_render = os.environ.get("RENDER") == "true"
+    if not _health_server_started and not is_render:
         class HealthHandler(BaseHTTPRequestHandler):
             def do_GET(self):
                 self.send_response(200)
@@ -265,9 +268,11 @@ def iniciar_telegram():
             threading.Thread(target=health_server.serve_forever, daemon=True).start()
             logger.info(f"Health check en puerto {port}")
         except Exception as e:
-            logger.warning(f"No se pudo iniciar el health check (probablemente ya en uso): {e}")
+            logger.warning(f"No se pudo iniciar el health check: {e}")
         
         _health_server_started = True
+    elif is_render:
+        logger.info("Health check de Telegram desactivado (usando FastAPI en $PORT)")
 
     logger.info(f"Manguito Bot v9.0 Iniciado | Límite IA: {LIMITE_IA_DIARIO} msgs/día por usuario")
     print(f"Manguito Bot v9.0 Iniciado | Limite IA: {LIMITE_IA_DIARIO} msgs/dia por usuario")
