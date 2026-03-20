@@ -207,14 +207,22 @@ async def login_web(body: LoginIn, request: Request):
 @router.get("/auth/google")
 async def google_login():
     from core.config import config as cfg
-    redirect_uri = f"{cfg.PUBLIC_URL}/api/auth/google/callback"
-    url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={cfg.GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_type=code&scope=openid email profile"
-    )
-    return RedirectResponse(url)
+    try:
+        base_url = cfg.PUBLIC_URL.rstrip('/')
+        redirect_uri = f"{base_url}/api/auth/google/callback"
+        # URL encode spaces in scope
+        scope = "openid%20email%20profile"
+        url = (
+            f"https://accounts.google.com/o/oauth2/v2/auth"
+            f"?client_id={cfg.GOOGLE_CLIENT_ID}"
+            f"&redirect_uri={redirect_uri}"
+            f"&response_type=code"
+            f"&scope={scope}"
+        )
+        return RedirectResponse(url)
+    except Exception as e:
+        logger.error(f"Error en google_login: {e}")
+        raise HTTPException(500, "Error configurando login de Google")
 
 
 @router.get("/auth/google/callback")
@@ -222,7 +230,8 @@ async def google_callback(code: str):
     import httpx
     from core.config import config as cfg
     from api.auth import generar_token
-    redirect_uri = f"{cfg.PUBLIC_URL}/api/auth/google/callback"
+    base_url = cfg.PUBLIC_URL.rstrip('/')
+    redirect_uri = f"{base_url}/api/auth/google/callback"
     async with httpx.AsyncClient() as client:
         token_resp = await client.post(
             "https://oauth2.googleapis.com/token",
@@ -248,7 +257,8 @@ async def google_callback(code: str):
     token = generar_token(usuario_id)
     needs_ob = await db.needs_onboarding(usuario_id)
     ob_param = "1" if needs_ob else "0"
-    return RedirectResponse(f"{cfg.PUBLIC_URL}/?token={token}&onboarding={ob_param}")
+    base_url = cfg.PUBLIC_URL.rstrip('/')
+    return RedirectResponse(f"{base_url}/?token={token}&onboarding={ob_param}")
 
 
 @router.post("/auth/onboarding")

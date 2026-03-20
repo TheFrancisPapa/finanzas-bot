@@ -38,7 +38,7 @@ def crear_app() -> FastAPI:
     )
 
     # CORS Restrictivo para producción
-    origenes_permitidos = [config.PUBLIC_URL] if config.PUBLIC_URL else ["http://localhost:8081", "http://127.0.0.1:8081"]
+    origenes_permitidos = [config.PUBLIC_URL.rstrip('/')] if config.PUBLIC_URL else ["http://localhost:8081", "http://127.0.0.1:8081"]
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origenes_permitidos,
