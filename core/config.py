@@ -29,7 +29,7 @@ class _Config:
         # === Web Dashboard ===
         # Render.com inyecta la variable PORT, usamos esa por defecto si existe.
         self.PORT_WEB: int = int(os.getenv("PORT", os.getenv("PORT_WEB", "8081")))
-        self.PUBLIC_URL: str = os.getenv("PUBLIC_URL", "")
+        self.PUBLIC_URL: str = os.getenv("PUBLIC_URL", "https://manguito.onrender.com")
 
         # === Auth & Pagos ===
         self.GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
