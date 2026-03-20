@@ -1,14 +1,21 @@
-# render.yaml — Configuración de deploy en Render (Python Runtime)
-# Docs: https://render.com/docs/blueprint-spec
-
 services:
   - type: web
-    name: manguito
-    runtime: python
-    buildCommand: "chmod +x build.sh && ./build.sh"
+    name: manguito-finanzas
+    env: python
+    region: ohio # Podés cambiarlo si usabas otra
+    plan: free
+    buildCommand: |
+      # 1. Construir el Frontend (React/Vite)
+      cd frontend
+      npm install
+      npm run build
+      cd ..
+      
+      # 2. Instalar dependencias del Backend (FastAPI)
+      pip install -r requirements.txt
     startCommand: "python main.py"
     envVars:
       - key: PYTHON_VERSION
-        value: "3.11"
-      - key: PORT
-        value: "8081"
+        value: 3.11.0 # Versión estable recomendada
+      # Las demás variables (JWT_SECRET, DATABASE_URL, GOOGLE_CLIENT_ID) 
+      # el usuario las configura manualmente en el dashboard de Render.
