@@ -2,11 +2,10 @@
 api/servidor.py — Servidor FastAPI para la web app.
 
 Sirve la API REST y los archivos estáticos del frontend.
-Se ejecuta en un hilo separado para no bloquear el bot de Telegram.
+Se ejecuta de forma directa por uvicorn en main.py.
 """
 
 import logging
-import threading
 import os
 
 import uvicorn

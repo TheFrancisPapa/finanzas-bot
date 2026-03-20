@@ -17,7 +17,7 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
 
 from db import db
-from api.auth import verificar_token
+from api.auth import verificar_token, get_usuario_actual
 from servicios import get_cotizacion_dolar, get_todas_cotizaciones, client, rate_limiter, MODEL_NAME
 
 logger = logging.getLogger('Manguito-API')
@@ -408,7 +408,7 @@ async def completar_onboarding(body: OnboardingIn, user_id: int = Depends(get_us
 
 @router.post("/auth/vincular-telegram")
 async def vincular_telegram(body: VincularTelegramIn, user_id: int = Depends(get_user_id)):
-    from api.auth import verificar_token
+    from api.auth import verificar_token, get_usuario_actual
     telegram_user_id = verificar_token(body.codigo)
     if telegram_user_id is None:
         raise HTTPException(400, "Código inválido o expirado. Generá uno nuevo con /web en Telegram.")
