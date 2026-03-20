@@ -1,43 +1,28 @@
 import os
-import logging
 from dotenv import load_dotenv
 
-# Cargar .env UNA sola vez al importar este módulo
 load_dotenv()
 
-logger = logging.getLogger('Manguito-Config')
+class Config:
+    # --- Configuración Original (Bot & Servicios) ---
+    TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '')
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+    LIMITE_IA_DIARIO = int(os.getenv('LIMITE_IA_DIARIO', 20))
+    DOLAR_CACHE_TTL = int(os.getenv('DOLAR_CACHE_TTL', 3600))
+    
+    # --- Base de Datos ---
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gastos.db')
+    
+    # --- Autenticación y Web ---
+    JWT_SECRET = os.getenv('JWT_SECRET', 'secreto_por_defecto_para_desarrollo')
+    ALGORITHM = "HS256"
 
-class _Config:
-    """Singleton de configuración para el entorno web de Manguito."""
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
 
-    def __init__(self):
-        # --- IA y Configuración Original (Restauradas) ---
-        self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-        self.TELEGRAM_TOKEN: str = os.getenv("TELEGRAM_TOKEN", "")
-        self.LIMITE_IA_DIARIO: int = int(os.getenv("LIMITE_IA_DIARIO", 20))
-        self.MODEL_NAME: str = os.getenv("MODEL_NAME", "gemini-2.0-flash")
+    MP_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN', '')
+    MP_WEBHOOK_SECRET = os.getenv('MP_WEBHOOK_SECRET', '')
 
-        # --- Servidor ---
-        self.PORT: int = int(os.getenv("PORT", 8000))
-        self.PUBLIC_URL: str = os.getenv("PUBLIC_URL", "https://manguito.onrender.com")
-
-        # --- Autenticación & Seguridad ---
-        self.JWT_SECRET: str = os.getenv("JWT_SECRET", "secreto_por_defecto_para_desarrollo")
-        self.ALGORITHM: str = "HS256"
-
-        # --- Google OAuth ---
-        self.GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
-        self.GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
-
-        # --- Mercado Pago ---
-        self.MP_ACCESS_TOKEN: str = os.getenv("MP_ACCESS_TOKEN", "")
-        self.MP_WEBHOOK_SECRET: str = os.getenv("MP_WEBHOOK_SECRET", "")
-
-        # --- Base de Datos ---
-        self.DATABASE_URL: str = os.getenv("DATABASE_URL", "")
-        self.DB_PATH: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "gastos.db")
-        
-        logger.info("Configuración de entorno restaurada y cargada.")
-
-# Global instance
-config = _Config()
+# Instancia global para mantener compatibilidad con tus imports
+config = Config()
