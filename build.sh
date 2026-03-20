@@ -1,30 +1,35 @@
 #!/usr/bin/env bash
-# build.sh — Script de construcción para Render (sin Docker)
+# build.sh — Script de construcción ultra-robusto para Render
 set -e
 
-echo "🐍 Instalando dependencias de Python..."
+echo "--- 🛠️ INICIANDO BUILD SCRIPT ---"
+
+echo "🐍 [1/4] Instalando dependencias de Python..."
+pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "📦 Descargando Node.js portable..."
-# Descargamos la versión LTS de Node.js (Linux x64)
-NODE_VERSION="v20.11.0"
-curl -fsSL https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.xz | tar -xJ --strip-components=1 -C . || {
-    echo "❌ Error descargando Node.js. Intentando alternativa..."
-    mkdir -p node_tmp
-    curl -fsSL https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.xz | tar -xJ --strip-components=1 -C node_tmp
-    export PATH=$PWD/node_tmp/bin:$PATH
-}
+echo "📦 [2/4] Instalando Node.js (Portable .tar.gz)..."
+# Usamos .tar.gz porque tiene mejor compatibilidad que .tar.xz en entornos limitados
+NODE_VERSION="v20.11.1"
+NODE_TAR="node-$NODE_VERSION-linux-x64.tar.gz"
+URL="https://nodejs.org/dist/$NODE_VERSION/$NODE_TAR"
 
-# Asegurar que node está en el PATH
-export PATH=$PWD/bin:$PATH
+# Crear carpeta para node y descargar
+mkdir -p node_bin
+curl -fsSL "$URL" | tar -xz --strip-components=1 -C node_bin
 
-echo "✅ Node.js version: $(node -v)"
-echo "✅ NPM version: $(npm -v)"
+# Agregar al PATH
+export PATH=$PWD/node_bin/bin:$PATH
 
-echo "🏗️ Construyendo el Frontend React..."
+echo "✅ Node.js: $(node -v)"
+echo "✅ NPM: $(npm -v)"
+
+echo "🏗️ [3/4] Instalando dependencias del Frontend..."
 cd frontend
-npm install
-npm run build
-cd ..
+npm install --no-audit --no-fund
 
-echo "✅ Frontend compilado exitosamente en frontend/dist/"
+echo "🔨 [4/4] Compilando Frontend (Vite)..."
+npm run build
+
+echo "--- ✅ BUILD FINALIZADO EXITOSAMENTE ---"
+cd ..
