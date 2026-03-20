@@ -3,14 +3,12 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { MangoLogo } from '../assets/logos';
-import GoogleAccountSelector from '../components/GoogleAccountSelector';
 import * as api from '../lib/api';
 
 const LoginScreen = ({ onNavigate, triggerToast }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -69,7 +67,6 @@ const LoginScreen = ({ onNavigate, triggerToast }) => {
 
   return (
     <div className="min-h-[100dvh] bg-[var(--bg-base)] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {showGoogleModal && <GoogleAccountSelector onClose={() => setShowGoogleModal(false)} onSelect={() => handleGoogleLogin()} />}
       
       {/* Background Decor */}
       <div className="absolute top-[-10%] left-[-10%] w-80 h-80 bg-[#FFCE45] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse" />
@@ -140,18 +137,14 @@ const LoginScreen = ({ onNavigate, triggerToast }) => {
 
           <Button 
             variant="google" 
-            onClick={() => {
-              triggerToast('Iniciando conexión con Google...', 'success');
-              setShowGoogleModal(true);
-            }}
+            onClick={handleGoogleLogin}
           >
             <img 
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
               className="w-5 h-5 mr-3" 
               alt="G" 
-              style={{ pointerEvents: 'none' }}
             />
-            <span style={{ pointerEvents: 'none' }}>Google</span>
+            Google
           </Button>
 
           <p className="text-center text-xs font-bold text-[var(--text-muted)] mt-8">
