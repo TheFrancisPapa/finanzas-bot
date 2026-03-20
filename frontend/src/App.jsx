@@ -23,6 +23,71 @@ import ExportarScreen from './screens/ExportarScreen';
 // Components
 import Toast from './components/ui/Toast';
 import BiometricLockScreen from './components/BiometricLockScreen';
+import { AlertCircle } from 'lucide-react';
+
+// --- Escudo Antifallos (Error Boundary) ---
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#FFFBF2] dark:bg-[#0D0B0F] flex flex-col items-center justify-center p-8 text-center theme-transition">
+          <div className="w-24 h-24 bg-[#FFEBEB] dark:bg-[#3B1212] rounded-3xl flex items-center justify-center text-[#E53E3E] mb-6 shadow-sm">
+            <AlertCircle size={40} strokeWidth={2.5}/>
+          </div>
+          <h2 className="text-3xl font-black text-[var(--text-main)] mb-3 tracking-tight">¡Uy! Un tropezón.</h2>
+          <p className="text-[var(--text-muted)] font-medium mb-8">Algo no cargó bien, pero tus datos están a salvo.</p>
+          <button onClick={() => window.location.reload()} className="bg-[#FFCE45] text-[#221F26] px-8 py-4 rounded-2xl font-black shadow-md hover:scale-105 transition-all">
+            Volver a intentar
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// --- Inyección de Temas y Estilos Premium ---
+const ThemeStyles = () => (
+  <style dangerouslySetInnerHTML={{__html: `
+    :root { 
+      --bg-base: #FFFBF2; 
+      --bg-card: #FFFFFF; 
+      --text-main: #221F26; 
+      --text-muted: #8B7C72; 
+      --border-color: #F3F4F6; 
+      --input-bg: rgba(249, 250, 251, 0.8); 
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --card-shadow: 0 8px 30px rgba(0,0,0,0.03);
+      --card-shadow-hover: 0 14px 40px rgba(0,0,0,0.06);
+    }
+    .dark { 
+      --bg-base: #0D0B0F; 
+      --bg-card: #16141A; 
+      --text-main: #F3F4F6; 
+      --text-muted: #9CA3AF; 
+      --border-color: #2D2936; 
+      --input-bg: rgba(45, 41, 54, 0.4); 
+      --nav-bg: rgba(22, 20, 26, 0.85);
+      --card-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      --card-shadow-hover: 0 14px 40px rgba(0,0,0,0.6);
+    }
+    body { background-color: var(--bg-base); color: var(--text-main); transition: background-color 0.4s ease, color 0.4s ease; }
+    .theme-transition { transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease; }
+    
+    @keyframes slideLeft {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .step-animate { animation: slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+  `}} />
+);
 
 function App() {
   // Auth state - check for token from URL (Google OAuth callback) or localStorage
@@ -140,7 +205,8 @@ function App() {
     setCurrentScreen(screen);
   }, []);
 
-  const handleLogin = useCallback(() => {
+  const handleLogin = useCallback((token) => {
+    if (token) setToken(token);
     setIsLoggedIn(true);
     setCurrentScreen('home');
   }, []);
@@ -208,10 +274,9 @@ function App() {
     switch (currentScreen) {
       case 'login':
         return <LoginScreen 
-          onNavigate={(screen) => { if (screen === 'home') handleLogin(); else handleNavigate(screen); }} 
+          onLoginSuccess={handleLogin}
+          onNavigate={handleNavigate} 
           triggerToast={triggerToast} 
-          isRegistered={!!userProfile.email}
-          userProfile={userProfile}
         />;
       case 'register':
         return <OnboardingFlow onFinish={handleOnboardingFinish} onBack={() => handleNavigate('login')} mode="manual" />;
@@ -248,10 +313,13 @@ function App() {
   };
 
   return (
-    <div className="max-w-lg mx-auto relative overflow-hidden" style={{ fontFamily: "SF Pro Display, Inter, system-ui, sans-serif" }}>
-      <Toast message={toastMessage} type={toastType} />
-      {renderScreen()}
-    </div>
+    <ErrorBoundary>
+      <ThemeStyles />
+      <div className="max-w-lg mx-auto relative overflow-hidden" style={{ fontFamily: "SF Pro Display, Inter, system-ui, sans-serif" }}>
+        <Toast message={toastMessage} type={toastType} />
+        {renderScreen()}
+      </div>
+    </ErrorBoundary>
   );
 }
 

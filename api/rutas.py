@@ -227,6 +227,43 @@ async def login_web(body: LoginIn, request: Request):
     return {"token": token, "onboarding_pendiente": needs_ob}
 
 
+@router.post("/auth/google/verify")
+async def google_verify(body: dict, request: Request):
+    """Verifica un ID Token de Google enviado desde el frontend."""
+    _rate_limit_auth(request)
+    import httpx
+    from core.config import config as cfg
+    from api.auth import generar_token
+    
+    id_token = body.get("credential")
+    if not id_token:
+        raise HTTPException(400, "Credential required")
+
+    async with httpx.AsyncClient() as client:
+        # Verificamos el token con el endpoint de Google
+        # Esto es más seguro que solo decodificarlo client-side
+        verify_resp = await client.get(
+            f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
+        )
+        if verify_resp.status_code != 200:
+            raise HTTPException(401, "Token de Google inválido o expirado")
+        
+        userinfo = verify_resp.json()
+        
+    google_id = userinfo.get("sub")
+    email = userinfo.get("email")
+    nombre = userinfo.get("name", email.split("@")[0])
+    
+    if not google_id or not email:
+        raise HTTPException(400, "No se pudo obtener info completa de Google")
+        
+    usuario_id = await db.crear_o_actualizar_usuario_google(google_id, email, nombre)
+    token = generar_token(usuario_id)
+    needs_ob = await db.needs_onboarding(usuario_id)
+    
+    return {"token": token, "onboarding_pendiente": needs_ob}
+
+
 @router.get("/auth/google")
 async def google_login():
     from core.config import config as cfg

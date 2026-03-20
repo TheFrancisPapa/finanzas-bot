@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowUpRight } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { MangoLogo } from '../assets/logos';
 import * as api from '../lib/api';
 
-const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile }) => {
+const LoginScreen = ({ onNavigate, triggerToast, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => { 
-    if (!isRegistered || !userProfile) {
-      return triggerToast('No encontramos tu cuenta. ¡Creala tocando abajo en "Crear cuenta"! 👇', 'error');
-    } 
+  const handleLogin = async () => { 
     if (!email || !password) {
       return triggerToast('¡Che! Completá tu email y contraseña para entrar.', 'error');
     }
     
-    if (email.toLowerCase().trim() !== userProfile.email.toLowerCase().trim() || password !== userProfile.password) {
-      return triggerToast('Email o contraseña incorrectos. Revisalos bien.', 'error');
+    setLoading(true);
+    try {
+      const res = await api.login(email, password);
+      onLoginSuccess(res.token);
+    } catch (err) {
+      triggerToast(err.message || 'Error al iniciar sesión', 'error');
+    } finally {
+      setLoading(false);
     }
-    
-    onNavigate('home'); 
   };
 
   const handleForgotPassword = (e) => {
@@ -32,9 +34,16 @@ const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile }) =>
     triggerToast(`Te enviamos un link de recuperación a ${email} 📧`);
   }
 
-  const handleGoogleLogin = () => {
-    triggerToast('Redirigiendo a Google...');
-    window.location.href = api.googleLoginUrl();
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const res = await api.googleAuth(credentialResponse.credential);
+      onLoginSuccess(res.token);
+    } catch (err) {
+      triggerToast('Error al autenticar con Google. Intentá de nuevo.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,20 +72,26 @@ const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile }) =>
           </button>
         </div>
         
-        <Button onClick={handleLogin}>Entrar a mi cuenta</Button>
+        <Button onClick={handleLogin} disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar a mi cuenta'}
+        </Button>
 
         <div className="relative my-8">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[var(--border-color)]"></div></div>
           <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest"><span className="bg-[var(--bg-card)] px-4 text-[var(--text-muted)] rounded-full">o ingresar con</span></div>
         </div>
 
-        <button 
-          onClick={handleGoogleLogin} 
-          className="w-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-bold text-sm py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 hover:-translate-y-0.5 active:bg-gray-100 dark:active:bg-gray-900 active:translate-y-0 active:scale-[0.98] transition-all"
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 bg-white rounded-full" alt="Google" />
-          Continuar con Google
-        </button>
+        <div className="flex justify-center flex-col items-center">
+          <GoogleLogin 
+            onSuccess={handleGoogleSuccess}
+            onError={() => triggerToast('Error en el login de Google', 'error')}
+            theme="filled_blue"
+            shape="pill"
+            text="continue_with"
+            locale="es"
+            width="100%"
+          />
+        </div>
       </div>
 
       <div className="w-full max-w-md mt-6 relative z-10 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-300">

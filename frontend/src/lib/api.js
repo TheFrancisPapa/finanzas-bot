@@ -48,6 +48,8 @@ export const completeOnboarding = (edad, objetivo) =>
   apiFetch('auth/onboarding', { method: 'POST', body: JSON.stringify({ edad, objetivo }) });
 
 export const googleLoginUrl = () => '/api/auth/google';
+export const googleAuth = (credential) =>
+  apiFetch('auth/google/verify', { method: 'POST', body: JSON.stringify({ credential }) });
 
 // --- Perfil ---
 export const getPerfil = () => apiFetch('perfil');
