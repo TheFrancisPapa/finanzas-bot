@@ -442,3 +442,22 @@ class RepoUsuarios:
                 SET hide_balances = $1, theme = $2, profile_pic = $3 
                 WHERE usuario_id = $4
             """, hide_balances, theme, profile_pic, usuario_id)
+
+# --- Alineación Técnica (Funciones Standalone) ---
+
+async def obtener_usuario_por_email(email: str):
+    """Busca un usuario por su email en la tabla usuarios."""
+    async with conexion.get_conn() as conn:
+        row = await conn.fetchrow("SELECT * FROM usuarios WHERE email = $1", email.lower().strip())
+        return dict(row) if row else None
+
+async def crear_usuario_web(nombre: str, email: str, auth_provider: str, picture: str | None = None, password_hash: str | None = None):
+    """Crea un nuevo usuario desde la web."""
+    # Generamos un ID compatible con el sistema existente si no viene uno
+    nuevo_id = int(time.time() * 1000) % 2_000_000_000
+    async with conexion.get_conn() as conn:
+        await conn.execute('''
+            INSERT INTO usuarios (usuario_id, nombre, email, auth_provider, picture, password_hash, ultima_actividad)
+            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+        ''', nuevo_id, nombre, email.lower().strip(), auth_provider, picture, password_hash)
+        return nuevo_id

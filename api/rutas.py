@@ -208,6 +208,52 @@ async def register(body: RegisterIn, request: Request):
     usuario_id = await db.crear_usuario_web(body.email, password_hash, nombre_seguro)
     token = generar_token(usuario_id)
     return {"token": token, "nombre": nombre_seguro, "onboarding_pendiente": True}
+    
+
+class GoogleAuthRequest(BaseModel):
+    email: str
+    name: str
+    picture: str | None = None
+
+@router.post("/auth/google")
+async def google_auth(request: GoogleAuthRequest):
+    """
+    Autenticación vía Google conforme a la guía técnica.
+    Busca o crea el usuario basado en el perfil enviado por el frontend.
+    """
+    from db.repo_usuarios import obtener_usuario_por_email, crear_usuario_web
+    from api.auth import crear_token_jwt
+
+    user = await obtener_usuario_por_email(request.email)
+    is_new_user = False
+    
+    if not user:
+        # Creamos el usuario si no existe
+        user_id = await crear_usuario_web(
+            nombre=request.name, 
+            email=request.email, 
+            auth_provider="google", 
+            picture=request.picture
+        )
+        user = await obtener_usuario_por_email(request.email)
+        is_new_user = True
+    else:
+        user_id = user["usuario_id"]
+        
+    # Generar Token JWT
+    token = crear_token_jwt(user_id)
+    
+    return {
+        "status": "success",
+        "token": token,
+        "user": {
+            "id": user_id,
+            "name": user["nombre"],
+            "email": user["email"],
+            "picture": user.get("picture"),
+            "isNewUser": is_new_user
+        }
+    }
 
 
 @router.post("/auth/login")

@@ -48,6 +48,11 @@ def generar_token(user_id: int) -> str:
     return f"{payload_b64}.{sig_b64}"
 
 
+def crear_token_jwt(user_id: int) -> str:
+    """Alias para compatibilidad con la guía técnica."""
+    return generar_token(user_id)
+
+
 def verificar_token(token: str) -> int | None:
     """
     Verifica un token y retorna el user_id, o None si es inválido o expiró.

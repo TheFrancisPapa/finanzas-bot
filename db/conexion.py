@@ -134,7 +134,11 @@ class Conexion:
                     pareja_id BIGINT DEFAULT NULL,
                     apodo TEXT DEFAULT NULL,
                     moneda_principal TEXT DEFAULT 'ARS',
-                    notificaciones_activas INTEGER DEFAULT 1
+                    notificaciones_activas INTEGER DEFAULT 1,
+                    email TEXT UNIQUE,
+                    password_hash TEXT,
+                    auth_provider TEXT DEFAULT 'manual',
+                    picture TEXT
                 )
             ''')
 
@@ -248,6 +252,11 @@ class Conexion:
                 await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS hide_balances BOOLEAN DEFAULT FALSE")
                 await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'light'")
                 await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS profile_pic TEXT DEFAULT NULL")
+                # Migración para tabla usuarios (Alineación Técnica)
+                await conn.execute("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS email TEXT UNIQUE")
+                await conn.execute("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS password_hash TEXT")
+                await conn.execute("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS auth_provider TEXT DEFAULT 'manual'")
+                await conn.execute("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS picture TEXT")
             except Exception as e:
                 logger.warning(f"Aviso de migración: {e}")
 
