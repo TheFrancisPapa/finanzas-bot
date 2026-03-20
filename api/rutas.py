@@ -55,6 +55,7 @@ class MovimientoIn(BaseModel):
     monto: float
     categoria: str
     descripcion: str
+    moneda: str = "ARS"
 
 
 class MovimientoEdit(BaseModel):
@@ -105,6 +106,11 @@ class OnboardingIn(BaseModel):
 class VincularTelegramIn(BaseModel):
     codigo: str
 
+class SettingsIn(BaseModel):
+    hide_balances: bool
+    theme: str
+    profile_pic: Optional[str] = None
+
 # ── PERFIL ────────────────────────────────────────────────
 
 LIMITE_IA_FREE = 5
@@ -112,25 +118,42 @@ LIMITE_IA_PRO = 20
 
 @router.get("/perfil")
 async def perfil(user_id: int = Depends(get_user_id)):
-    """Datos del perfil del usuario."""
-    info = await db.info_plan(user_id)
+    """Datos del perfil del usuario (combinado web + core)."""
+    # Intentar obtener perfil web completo primero
+    perfil_web = await db.usuarios.get_perfil_web_completo(user_id)
+    
+    info_plan = await db.info_plan(user_id)
     racha = await db.get_racha(user_id)
     logros = await db.get_logros(user_id)
+
+    if perfil_web:
+        # Combinar con datos de racha y logros
+        perfil_web["racha"] = racha
+        perfil_web["plan_dias"] = info_plan[1]
+        perfil_web["logros"] = [{"logro_id": l[0], "fecha": l[1]} for l in logros] if logros else []
+        return perfil_web
+
+    # Fallback si no es usuario web (poco probable ahora)
     apodo = await db.usuarios.get_apodo(user_id)
     moneda = await db.usuarios.get_moneda(user_id)
     pro = await db.usuarios.es_pro(user_id)
 
     return {
         "id": user_id,
+        "nombre": apodo,
         "apodo": apodo,
-        "moneda": moneda,
-        "plan": info[0],
-        "dias_restantes": info[1],
+        "moneda_principal": moneda,
+        "plan": info_plan[0],
         "es_pro": pro,
         "racha": racha,
         "logros": [{"logro_id": l[0], "fecha": l[1]} for l in logros] if logros else [],
-        "notificaciones_activas": await db.usuarios.get_notificaciones_activas(user_id),
     }
+
+@router.post("/perfil/ajustes")
+async def actualizar_ajustes_web(data: SettingsIn, user_id: int = Depends(get_user_id)):
+    """Actualiza ajustes visuales de la web."""
+    await db.usuarios.actualizar_ajustes(user_id, data.hide_balances, data.theme, data.profile_pic)
+    return {"status": "ok"}
 
 @router.post("/perfil/apodo")
 async def actualizar_apodo(data: ApodoIn, user_id: int = Depends(get_user_id)):
@@ -432,6 +455,7 @@ async def listar_movimientos(
                 "tipo": m[3],
                 "categoria": m[4],
                 "fecha": m[5],
+                "moneda": m[6] if len(m) > 6 else "ARS",
             }
             for m in movs
         ],
@@ -447,7 +471,7 @@ async def crear_movimiento(mov: MovimientoIn, user_id: int = Depends(get_user_id
         raise HTTPException(status_code=400, detail="Monto debe ser mayor a 0")
 
     descripcion_segura = html.escape(mov.descripcion) if mov.descripcion else ""
-    mov_id = await db.agregar_movimiento(user_id, mov.tipo, mov.monto, mov.categoria, descripcion_segura)
+    mov_id = await db.agregar_movimiento(user_id, mov.tipo, mov.monto, mov.categoria, descripcion_segura, moneda=mov.moneda)
     return {"id": mov_id, "ok": True}
 
 

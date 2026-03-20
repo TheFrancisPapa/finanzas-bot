@@ -418,3 +418,27 @@ class RepoUsuarios:
                 
                 # 3. Finalmente eliminar de la tabla principal de usuarios
                 await conn.execute("DELETE FROM usuarios WHERE usuario_id = $1", usuario_id)
+
+    # ── NUEVOS AJUSTES WEB ────────────────────────────────
+    
+    async def get_perfil_web_completo(self, usuario_id: int):
+        """Retorna todos los datos del perfil combinando usuarios y web_users."""
+        async with conexion.get_conn() as conn:
+            row = await conn.fetchrow("""
+                SELECT u.nombre, u.apodo, u.moneda_principal, u.notificaciones_activas,
+                       w.email, w.edad, w.objetivo, w.hide_balances, w.theme, w.profile_pic,
+                       p.plan
+                FROM usuarios u
+                LEFT JOIN web_users w ON u.usuario_id = w.usuario_id
+                LEFT JOIN usuarios_pro p ON u.usuario_id = p.usuario_id
+                WHERE u.usuario_id = $1
+            """, usuario_id)
+            return dict(row) if row else None
+
+    async def actualizar_ajustes(self, usuario_id: int, hide_balances: bool, theme: str, profile_pic: str | None = None):
+        async with conexion.get_conn() as conn:
+            await conn.execute("""
+                UPDATE web_users 
+                SET hide_balances = $1, theme = $2, profile_pic = $3 
+                WHERE usuario_id = $4
+            """, hide_balances, theme, profile_pic, usuario_id)

@@ -55,6 +55,8 @@ export const updateApodo = (apodo) =>
   apiFetch('perfil/apodo', { method: 'POST', body: JSON.stringify({ apodo }) });
 export const updateMoneda = (moneda) =>
   apiFetch('perfil/moneda', { method: 'POST', body: JSON.stringify({ moneda }) });
+export const updateAjustes = (hide_balances, theme, profile_pic = null) =>
+  apiFetch('perfil/ajustes', { method: 'POST', body: JSON.stringify({ hide_balances, theme, profile_pic }) });
 export const deleteCuenta = () => apiFetch('perfil/cuenta', { method: 'DELETE' });
 
 // --- Resumen ---

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import useLocalState from './hooks/useLocalState';
 import { DEFAULT_CATEGORIES } from './lib/utils';
-import { hasToken, clearToken, setToken } from './lib/api';
+import { hasToken, clearToken, setToken, getPerfil, updateAjustes, getMovimientos, crearMovimiento } from './lib/api';
 
 // Screens
 import LoginScreen from './screens/LoginScreen';
@@ -54,11 +54,56 @@ function App() {
       if (onboarding === '1') {
         setCurrentScreen('register');
       } else {
+        // Al entrar por Google, el perfil se cargará en el siguiente effect
         setCurrentScreen('home');
       }
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, []);
+  }, [setIsLoggedIn]);
+
+  // Sync profile & movements data from backend on login
+  useEffect(() => {
+    if (isLoggedIn && hasToken()) {
+      // Fetch Profile
+      getPerfil()
+        .then(data => {
+          if (data) {
+            setUserProfile(prev => ({
+              ...prev,
+              name: data.nombre || prev.name,
+              email: data.email || prev.email,
+              dob: data.edad || prev.dob,
+              goal: data.objetivo || prev.goal,
+              mainCurrency: data.moneda_principal || prev.mainCurrency,
+              hideBalances: data.hide_balances ?? prev.hideBalances,
+              theme: data.theme || prev.theme,
+              profilePic: data.profile_pic || prev.profilePic,
+              plan: data.plan || prev.plan
+            }));
+          }
+        })
+        .catch(err => console.error("Error al sincronizar perfil:", err));
+
+      // Fetch Movements
+      getMovimientos(50)
+        .then(data => {
+          if (data && data.movimientos) {
+            // Mapear el formato del backend al que espera el frontend
+            const mappedMovs = data.movimientos.map(m => ({
+              id: m.id,
+              description: m.descripcion,
+              amount: m.monto,
+              type: m.tipo === 'egreso' ? 'gasto' : 'ingreso',
+              category: m.categoria,
+              date: m.fecha,
+              currency: m.moneda || 'ARS'
+            }));
+            setMovements(mappedMovs);
+          }
+        })
+        .catch(err => console.error("Error al sincronizar movimientos:", err));
+    }
+  }, [isLoggedIn, setMovements, setUserProfile]);
 
   // Check login state on mount
   useEffect(() => {
@@ -70,14 +115,20 @@ function App() {
     }
   }, []);
 
-  // Theme management
+  // Theme management & Backend Setting Sync
   useEffect(() => {
     if (userProfile.theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [userProfile.theme]);
+    
+    // Sync settings to backend only if we are logged in
+    if (isLoggedIn && hasToken()) {
+      updateAjustes(userProfile.hideBalances, userProfile.theme, userProfile.profilePic)
+        .catch(err => console.error("Error sync settings:", err));
+    }
+  }, [userProfile.theme, userProfile.hideBalances, userProfile.profilePic, isLoggedIn]);
 
   const triggerToast = useCallback((message, type = 'success') => {
     setToastMessage(message);
@@ -122,11 +173,27 @@ function App() {
     triggerToast(`¡Bienvenido/a, ${formData.name}! 🥭`);
   }, []);
 
-  const handleSaveMovement = useCallback((movement) => {
+  const handleSaveMovement = useCallback(async (movement) => {
+    // UI Optimista
     setMovements(prev => [movement, ...prev]);
     setCurrentScreen('home');
     triggerToast(`${movement.type === 'gasto' ? 'Gasto' : 'Ingreso'} registrado ✅`);
-  }, []);
+
+    // Sincronizar con Backend
+    if (hasToken()) {
+      try {
+        await crearMovimiento({
+          tipo: movement.type === 'gasto' ? 'egreso' : 'ingreso',
+          monto: Number(movement.amount),
+          categoria: movement.category,
+          descripcion: movement.description,
+          moneda: movement.currency
+        });
+      } catch (err) {
+        console.error("Error al guardar movimiento en la nube:", err);
+      }
+    }
+  }, [setMovements, triggerToast]);
 
   const triggerLock = useCallback(() => {
     if (userProfile.biometricEnabled) setIsLocked(true);

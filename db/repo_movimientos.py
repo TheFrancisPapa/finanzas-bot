@@ -20,13 +20,13 @@ class RepoMovimientos:
 
     # ── CRUD ──────────────────────────────────────────────
 
-    async def agregar(self, user_id, tipo, monto, categoria, descripcion):
+    async def agregar(self, user_id, tipo, monto, categoria, descripcion, moneda="ARS"):
         fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         categoria = categoria.capitalize()
         async with conexion.get_conn() as conn:
             mov_id = await conn.fetchval(
-                'INSERT INTO movimientos (usuario_id, fecha, tipo, monto, categoria, descripcion) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-                user_id, fecha, tipo, monto, categoria, descripcion
+                'INSERT INTO movimientos (usuario_id, fecha, tipo, monto, categoria, descripcion, moneda) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                user_id, fecha, tipo, monto, categoria, descripcion, moneda
             )
             return mov_id
 
@@ -134,25 +134,25 @@ class RepoMovimientos:
         """Igual que get_ultimos_movimientos pero incluyendo el ID del registro."""
         async with conexion.get_conn() as conn:
             rows = await conn.fetch(
-                "SELECT id, descripcion, monto, tipo, categoria, fecha FROM movimientos WHERE usuario_id = $1 ORDER BY id DESC LIMIT $2",
+                "SELECT id, descripcion, monto, tipo, categoria, fecha, moneda FROM movimientos WHERE usuario_id = $1 ORDER BY id DESC LIMIT $2",
                 user_id, limite
             )
-            return [(r['id'], r['descripcion'], r['monto'], r['tipo'], r['categoria'], r['fecha']) for r in rows]
+            return [(r['id'], r['descripcion'], r['monto'], r['tipo'], r['categoria'], r['fecha'], r['moneda']) for r in rows]
             
     async def get_movimientos_paginados(self, user_id, limite=5, offset=0, tipo=None):
         """Obtiene movimientos paginados para la edición visual."""
         async with conexion.get_conn() as conn:
             if tipo:
                 rows = await conn.fetch(
-                    "SELECT id, descripcion, monto, tipo, categoria, fecha FROM movimientos WHERE usuario_id = $1 AND tipo = $2 ORDER BY id DESC LIMIT $3 OFFSET $4",
+                    "SELECT id, descripcion, monto, tipo, categoria, fecha, moneda FROM movimientos WHERE usuario_id = $1 AND tipo = $2 ORDER BY id DESC LIMIT $3 OFFSET $4",
                     user_id, tipo, limite, offset
                 )
             else:
                 rows = await conn.fetch(
-                    "SELECT id, descripcion, monto, tipo, categoria, fecha FROM movimientos WHERE usuario_id = $1 ORDER BY id DESC LIMIT $2 OFFSET $3",
+                    "SELECT id, descripcion, monto, tipo, categoria, fecha, moneda FROM movimientos WHERE usuario_id = $1 ORDER BY id DESC LIMIT $2 OFFSET $3",
                     user_id, limite, offset
                 )
-            return [(r['id'], r['descripcion'], r['monto'], r['tipo'], r['categoria'], r['fecha']) for r in rows]
+            return [(r['id'], r['descripcion'], r['monto'], r['tipo'], r['categoria'], r['fecha'], r['moneda']) for r in rows]
 
     async def contar_movimientos_total(self, user_id, tipo=None):
         """Cuenta el total de movimientos de un usuario (para saber si hay más páginas)."""

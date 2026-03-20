@@ -242,6 +242,15 @@ class Conexion:
             await conn.execute("CREATE INDEX IF NOT EXISTS idx_mov_usuario_tipo_fecha ON movimientos(usuario_id, tipo, fecha)")
             await conn.execute("CREATE INDEX IF NOT EXISTS idx_mov_usuario_cat ON movimientos(usuario_id, categoria)")
 
+            # MIGRACIONES (Columnas nuevas)
+            try:
+                await conn.execute("ALTER TABLE movimientos ADD COLUMN IF NOT EXISTS moneda TEXT DEFAULT 'ARS'")
+                await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS hide_balances BOOLEAN DEFAULT FALSE")
+                await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'light'")
+                await conn.execute("ALTER TABLE web_users ADD COLUMN IF NOT EXISTS profile_pic TEXT DEFAULT NULL")
+            except Exception as e:
+                logger.warning(f"Aviso de migración: {e}")
+
         logger.info("Base de datos inicializada correctamente.")
 
     def backup_db(self, path_destino):
