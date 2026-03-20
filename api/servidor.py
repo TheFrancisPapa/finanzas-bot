@@ -67,39 +67,35 @@ def crear_app() -> FastAPI:
     # Registrar rutas de la API
     app.include_router(router)
 
-    # Servir archivos estáticos del frontend
-    if os.path.isdir(STATIC_DIR):
-        app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="assets") if os.path.isdir(os.path.join(STATIC_DIR, "assets")) else None
-        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    # --- NUEVO: Servir el Frontend de React ---
+    # La carpeta 'dist' se genera con 'npm run build' en el build.sh
+    frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
 
-        @app.get("/")
-        async def index():
-            return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    if os.path.exists(frontend_dist):
+        # Montar archivos estáticos (JS, CSS, imágenes de Vite)
+        assets_path = os.path.join(frontend_dist, "assets")
+        if os.path.isdir(assets_path):
+            app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
 
-        @app.get("/manifest.json")
-        async def manifest():
-            return FileResponse(os.path.join(STATIC_DIR, "manifest.json"))
-
-        @app.get("/sw.js")
-        async def service_worker():
-            return FileResponse(
-                os.path.join(STATIC_DIR, "sw.js"),
-                media_type="application/javascript",
-            )
-
-        # SPA fallback — cualquier ruta que no sea /api/* devuelve index.html
-        @app.get("/{path:path}")
-        async def spa_fallback(path: str):
-            # Si es un archivo estático que existe, servirlo
-            file_path = os.path.join(STATIC_DIR, path)
+        # SPA Fallback: cualquier ruta que no sea /api/* sirve el index.html
+        @app.get("/{catchall:path}")
+        async def serve_react_app(catchall: str):
+            # Si la ruta existe como archivo real (ej: manifest.json, favicon.ico), lo servimos
+            file_path = os.path.join(frontend_dist, catchall.strip("/"))
             if os.path.isfile(file_path):
                 return FileResponse(file_path)
-            # Sino, devolver index.html para que React maneje la ruta
-            return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+            
+            # Si no empieza con api/, devolvemos index.html para que React maneje la ruta
+            if not catchall.startswith("api/"):
+                return FileResponse(os.path.join(frontend_dist, "index.html"))
+            
+            return {"detail": "API endpoint no encontrado"}
     else:
+        logger.warning(f"⚠️ Frontend dist no encontrado en: {frontend_dist}. Solo funcionará la API.")
+        
         @app.get("/")
-        async def index():
-            return {"status": "Manguito API v1.0 — Frontend no encontrado. Corrí 'cd frontend && npm run build'."}
+        async def root_fallback():
+            return {"status": "Manguito API activa — Frontend no encontrado (dist)"}
 
     return app
 
