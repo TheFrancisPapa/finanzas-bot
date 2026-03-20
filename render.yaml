@@ -1,19 +1,14 @@
-# render.yaml — Configuración de deploy en Render (Docker)
+# render.yaml — Configuración de deploy en Render (Python Runtime)
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
   - type: web
     name: manguito
-    runtime: docker
-    plan: free
+    runtime: python
+    buildCommand: "chmod +x build.sh && ./build.sh"
+    startCommand: "python main.py"
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
       - key: PORT
-        value: "8443"  # Render inyecta PORT automáticamente, este es un valor sugerido
-      - key: DATABASE_URL
-        sync: false
-      - key: TELEGRAM_TOKEN
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: ADMIN_ID
-        sync: false
+        value: "8081"
