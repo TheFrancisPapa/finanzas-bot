@@ -105,14 +105,6 @@ def crear_app() -> FastAPI:
     return app
 
 
-def iniciar_web(port: int = 8081):
-    """Inicia el servidor web en un hilo separado (daemon)."""
-    app = crear_app()
-
-    def _run():
-        uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
-
-    thread = threading.Thread(target=_run, daemon=True)
-    thread.start()
-    logger.info(f"🌐 Manguito Web iniciado en http://localhost:{port}")
-    return app
+def crear_app_standalone():
+    """Retorna la app configurada (alias para main.py)."""
+    return crear_app()

@@ -479,3 +479,30 @@ class RepoMovimientos:
             mitad = (total_1 + total_2) / 2
             
             return (total_1, total_2, mitad)
+
+# --- Alineación Pivot Web ---
+
+async def registrar_movimiento_web(usuario_id: int, tipo: str, monto: float, categoria: str, descripcion: str = "", currency: str = "ARS"):
+    """Registra un movimiento desde la web."""
+    from db import db
+    # Mapeamos 'gasto' -> 'egreso' para compatibilidad con la BD existente
+    tipo_bd = 'egreso' if tipo == 'gasto' else 'ingreso'
+    return await db.movimientos.agregar(usuario_id, tipo_bd, monto, categoria, descripcion, currency)
+
+async def obtener_movimientos_web(usuario_id: int):
+    """Obtiene movimientos en el formato exacto que espera el React de Manguito."""
+    from db import db
+    rows = await db.movimientos.get_ultimos_movimientos_con_id(usuario_id, limite=50)
+    movimientos = []
+    for r in rows:
+        # r = (id, descripcion, monto, tipo, categoria, fecha, moneda)
+        movimientos.append({
+            "id": r[0],
+            "type": "gasto" if r[2] > 0 and r[3] == 'egreso' else "ingreso",
+            "amount": float(r[2]),
+            "category": r[4],
+            "description": r[1],
+            "date": r[5],
+            "currency": r[6]
+        })
+    return movimientos

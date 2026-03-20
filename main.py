@@ -1,32 +1,35 @@
+import uvicorn
 import asyncio
 import logging
-
+import os
 from db import db
-from telegram_bot import iniciar_telegram
-from api.servidor import iniciar_web
+from api.servidor import crear_app
 from core.config import config
 
+# Configuración de logs
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Manguito-Main')
 
-
-async def setup():
-    """Inicializa la base de datos antes de arrancar el bot."""
-    logger.info("Inicializando base de datos...")
+async def main():
+    """Arranque principal para Web App Exclusiva."""
+    logger.info("🥭 Iniciando Manguito en modo WEB EXCLUSIVO...")
+    
+    # 1. Inicializar Base de Datos
     await db.init_db()
-    logger.info("Base de datos lista.")
-
-
-def main():
-    logger.info("Iniciando Manguito - Bot de Telegram + Web...")
-    asyncio.run(setup())
-
-    # Iniciar servidor web (FastAPI) en hilo separado
-    port_web = int(getattr(config, 'PORT_WEB', 8081))
-    iniciar_web(port=port_web)
-
-    # Iniciar bot de Telegram (bloquea)
-    iniciar_telegram()
-
+    
+    # 2. Iniciar Servidor FastAPI
+    # El puerto se toma de la variable de entorno PORT (Render) o 8081 por defecto
+    port = int(os.environ.get("PORT", getattr(config, 'PORT_WEB', 8081)))
+    
+    app = crear_app()
+    
+    config_uvicorn = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config_uvicorn)
+    
+    await server.serve()
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Servidor detenido por el usuario.")

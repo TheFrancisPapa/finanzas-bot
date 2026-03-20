@@ -88,3 +88,26 @@ def verificar_password(password: str, password_hash: str) -> bool:
         return bcrypt.checkpw(password.encode(), password_hash.encode())
     except Exception:
         return False
+
+
+# --- Alineación Pivot Web ---
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+async def get_usuario_actual(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+    """
+    Dependencia de FastAPI para obtener el usuario_id del token JWT.
+    Protege las rutas y asegura que el usuario esté autenticado.
+    """
+    token = credentials.credentials
+    user_id = verificar_token(token)
+    
+    if user_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user_id

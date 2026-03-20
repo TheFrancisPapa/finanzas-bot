@@ -273,6 +273,37 @@ async def login_web(body: LoginIn, request: Request):
     return {"token": token, "onboarding_pendiente": needs_ob}
 
 
+# --- Alineación Pivot Web ---
+
+class MovimientoWeb(BaseModel):
+    type: str
+    amount: float
+    category: str
+    description: str = ""
+    currency: str = "ARS"
+
+@router.get("/movimientos")
+async def get_movimientos(usuario_id: int = Depends(get_usuario_actual)):
+    """Obtiene el historial de movimientos del usuario autenticado."""
+    from db.repo_movimientos import obtener_movimientos_web
+    movs = await obtener_movimientos_web(usuario_id)
+    return {"status": "success", "data": movs}
+
+@router.post("/movimientos")
+async def post_movimiento(mov: MovimientoWeb, usuario_id: int = Depends(get_usuario_actual)):
+    """Registra un nuevo movimiento para el usuario autenticado."""
+    from db.repo_movimientos import registrar_movimiento_web
+    await registrar_movimiento_web(
+        usuario_id=usuario_id,
+        tipo=mov.type,
+        monto=mov.amount,
+        categoria=mov.category,
+        descripcion=mov.description,
+        currency=mov.currency
+    )
+    return {"status": "success", "message": "Movimiento registrado correctamente"}
+
+
 @router.post("/auth/google/verify")
 async def google_verify(body: dict, request: Request):
     """Verifica un ID Token de Google enviado desde el frontend."""
