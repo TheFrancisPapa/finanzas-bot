@@ -67,28 +67,26 @@ def crear_app() -> FastAPI:
     # Registrar rutas de la API
     app.include_router(router)
 
-    # --- NUEVO: Servir el Frontend de React ---
-    # La carpeta 'dist' se genera con 'npm run build' en el build.sh
+    # --- Montar el Frontend de React ---
     frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
 
     if os.path.exists(frontend_dist):
-        # Montar archivos estáticos (JS, CSS, imágenes de Vite)
-        assets_path = os.path.join(frontend_dist, "assets")
-        if os.path.isdir(assets_path):
-            app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
-
-        # SPA Fallback: cualquier ruta que no sea /api/* sirve el index.html
+        # 1. Montamos la carpeta assets (JS, CSS, imágenes procesadas por Vite)
+        app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+        
+        # 2. Catch-all Inteligente para SPA y Archivos de Raíz
         @app.get("/{catchall:path}")
         async def serve_spa(catchall: str):
-            """Manejo del Catch-All para React SPA."""
+            # Evitar interferir con rutas de la API que no existan
             if catchall.startswith("api/"):
                 return {"detail": "Endpoint de API no encontrado"}
             
-            # Verificación de archivos estáticos en la raíz (ej: manifest.json)
-            file_path = os.path.join(frontend_dist, catchall.strip("/"))
+            # Si el usuario pide un archivo específico en la raíz (ej: manifest.json, sw.js, favicon.ico)
+            file_path = os.path.join(frontend_dist, catchall)
             if os.path.isfile(file_path):
                 return FileResponse(file_path)
                 
+            # Si no es un archivo, asumimos que es una ruta de React Router y devolvemos index.html
             return FileResponse(os.path.join(frontend_dist, "index.html"))
     else:
         logger.warning(f"⚠️ Frontend dist no encontrado en: {frontend_dist}. Solo funcionará la API.")
