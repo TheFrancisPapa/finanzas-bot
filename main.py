@@ -3,7 +3,7 @@ import asyncio
 import logging
 import os
 from db import db
-from api.servidor import crear_app
+from api.servidor import app
 from core.config import config
 
 # Configuración de logs
@@ -21,8 +21,6 @@ async def main():
     # Render inyecta el puerto en la variable de entorno PORT. 
     # Si forzamos el 8081, Render dará Timeout.
     port = int(os.getenv("PORT", 8000))
-    
-    app = crear_app()
     
     config_uvicorn = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
     server = uvicorn.Server(config_uvicorn)
