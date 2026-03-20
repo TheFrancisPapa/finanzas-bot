@@ -24,9 +24,10 @@ async function apiFetch(endpoint, options = {}) {
   });
 
   if (res.status === 401) {
-    clearToken();
-    window.location.reload();
-    throw new Error('Sesión expirada');
+    console.warn("Token inválido o expirado. Limpiando sesión local...");
+    window.localStorage.clear();
+    window.location.href = "/"; // Redirige a la raíz para forzar el Login
+    return null;
   }
 
   if (!res.ok) {
