@@ -1,11 +1,3 @@
-import React, { useState } from 'react';
-import { Mail, Lock } from 'lucide-react';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { MangoLogo } from '../assets/logos';
-import GoogleAccountSelector from '../components/GoogleAccountSelector';
-import * as api from '../lib/api';
-
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from '../components/ui/Button';

@@ -1,9 +1,4 @@
 import React from 'react';
-import Button from '../components/ui/Button';
-import { MercadoPagoLogo } from '../assets/logos';
-import { crearPreferenciaPago } from '../lib/api';
-
-import React from 'react';
 import { ShieldCheck, Sparkles, Download, Heart, ArrowLeft, CheckCircle2, Star } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { MercadoPagoLogo } from '../assets/logos';
