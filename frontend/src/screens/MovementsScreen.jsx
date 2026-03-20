@@ -49,28 +49,28 @@ const MovementsScreen = ({ onNavigate, movements = [] }) => {
             <p className="text-[var(--text-muted)] text-base max-w-[280px] leading-relaxed font-medium">Anotá tu primer gasto usando el botón central <span className="inline-block bg-[#FFCE45] text-[#221F26] w-6 h-6 rounded-md font-black text-xs leading-6 shadow-sm mx-1">+</span>.</p>
           </div>
         ) : (
-          <div className="space-y-6 mt-8 animate-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-6 mt-8">
             {Object.entries(groupedMovements).map(([dateLabel, movs], groupIdx) => (
-              <div key={groupIdx}>
-                <h3 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3 px-2">{dateLabel}</h3>
+              <div key={groupIdx} className="stagger-animate" style={{ animationDelay: `${groupIdx * 0.1}s` }}>
+                <h3 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4 px-2 opacity-60">{dateLabel}</h3>
                 <div className="space-y-3">
                   {movs.map((mov, idx) => (
-                    <Card key={idx} noPadding className="p-4.5 flex justify-between items-center shadow-sm">
+                    <Card key={idx} noPadding className="p-4.5 flex justify-between items-center shadow-sm hover:shadow-md transition-all active:scale-[0.98]">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center text-xl ${mov.type === 'gasto' ? 'bg-[#FFEBEB]/80 dark:bg-red-500/10' : 'bg-[#E6F4EA]/80 dark:bg-green-500/10'}`}>
+                        <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center text-xl ${mov.type === 'gasto' ? 'bg-[#FFEBEB]/80 dark:bg-red-500/10' : 'bg-[#E6F4EA]/80 dark:bg-green-500/10'}`}>
                           {mov.icon || (mov.type === 'gasto' ? '💸' : '💰')}
                         </div>
                         <div>
-                          <p className="font-black text-[var(--text-main)] text-base tracking-tight">{mov.category || 'Movimiento'}</p>
-                          <p className="text-[13px] text-[var(--text-muted)] mt-0.5">{mov.description || 'Sin descripción'}</p>
+                          <p className="font-black text-[var(--text-main)] text-[15px] tracking-tight">{mov.category || 'Movimiento'}</p>
+                          <p className="text-[12px] font-bold text-[var(--text-muted)] mt-0.5 opacity-70">{mov.description || 'Sin descripción'}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className={`text-lg font-black ${mov.type === 'gasto' ? 'text-[#E53E3E]' : 'text-[#639639]'}`}>
+                        <span className={`text-[17px] font-black ${mov.type === 'gasto' ? 'text-[#E53E3E]' : 'text-[#639639]'}`}>
                           {mov.type === 'gasto' ? '-' : '+'}{formatMoney(Number(mov.amount), mov.currency)}
                         </span>
                         {mov.hasReceipt && (
-                          <p className="text-[10px] font-bold text-[#FFCE45] mt-1 uppercase tracking-wider flex items-center justify-end gap-1"><Camera size={10} /> Ticket</p>
+                          <p className="text-[9px] font-black text-[#FFCE45] mt-1 uppercase tracking-widest flex items-center justify-end gap-1"><Camera size={10} strokeWidth={3} /> Ticket</p>
                         )}
                       </div>
                     </Card>

@@ -7,8 +7,9 @@
   --text-muted: #8B7C72; 
   --border-color: #F3F4F6; 
   --input-bg: rgba(249, 250, 251, 0.8); 
-  --nav-bg: rgba(255, 255, 255, 0.8);
-  --card-shadow: 0 12px 40px rgba(0,0,0,0.04);
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --card-shadow: 0 8px 30px rgba(0,0,0,0.03);
+  --card-shadow-hover: 0 14px 40px rgba(0,0,0,0.06);
 }
 
 .dark { 
@@ -19,7 +20,8 @@
   --border-color: #2D2936; 
   --input-bg: rgba(45, 41, 54, 0.4); 
   --nav-bg: rgba(22, 20, 26, 0.85);
-  --card-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  --card-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  --card-shadow-hover: 0 14px 40px rgba(0,0,0,0.6);
 }
 
 body { 
@@ -39,6 +41,17 @@ body {
   to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .step-animate { 
-  animation: slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+  animation: slideLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+  opacity: 0;
+}
+
+.stagger-animate { 
+  animation: fadeUp 0.4s ease forwards; 
+  opacity: 0; 
 }

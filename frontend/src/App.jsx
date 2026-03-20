@@ -144,7 +144,7 @@ function App() {
       case 'register':
         return <OnboardingFlow onFinish={handleOnboardingFinish} onBack={() => handleNavigate('login')} mode="manual" />;
       case 'home':
-        return <DashboardScreen onNavigate={handleNavigate} movements={movements} userProfile={userProfile} />;
+        return <DashboardScreen onNavigate={handleNavigate} movements={movements} userProfile={userProfile} triggerToast={triggerToast} />;
       case 'movements':
         return <MovementsScreen onNavigate={handleNavigate} movements={movements} />;
       case 'new_movement':
@@ -152,9 +152,10 @@ function App() {
       case 'learn':
         return <LearnScreen onNavigate={handleNavigate} />;
       case 'more':
-        return <MoreScreen onNavigate={handleNavigate} userProfile={userProfile} triggerLock={triggerLock} />;
+        return <MoreScreen onNavigate={handleNavigate} userProfile={userProfile} triggerLock={triggerLock} triggerToast={triggerToast} />;
       case 'pro':
         return <ProScreen onNavigate={handleNavigate} />;
+      case 'config_perfil':
       case 'configurar_perfil':
         return <ConfigurarPerfilScreen onNavigate={handleNavigate} userProfile={userProfile} setUserProfile={setUserProfile} onLogout={handleLogout} triggerToast={triggerToast} />;
       case 'cotizaciones':
@@ -168,7 +169,7 @@ function App() {
       case 'modo_pareja':
         return <ModoParejaScreen onNavigate={handleNavigate} />;
       case 'exportar':
-        return <ExportarScreen onNavigate={handleNavigate} />;
+        return <ExportarScreen onNavigate={handleNavigate} triggerToast={triggerToast} />;
       default:
         return <DashboardScreen onNavigate={handleNavigate} movements={movements} userProfile={userProfile} />;
     }
