@@ -9,6 +9,4 @@ Uso:
     await db.suscripciones.agregar(user_id, ...)
 """
 
-from db.manager import db
-
 __all__ = ["db"]
