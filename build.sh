@@ -8,9 +8,9 @@ echo "🐍 [1/4] Instalando dependencias de Python..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "📦 [2/4] Instalando Node.js (Portable .tar.gz)..."
-# Usamos .tar.gz porque tiene mejor compatibilidad que .tar.xz en entornos limitados
-NODE_VERSION="v20.11.1"
+echo "📦 [2/4] Instalando Node.js v22 (LTS)..."
+# Usamos v22.14.0 porque Vite requiere >= 20.19 o >= 22.12
+NODE_VERSION="v22.14.0"
 NODE_TAR="node-$NODE_VERSION-linux-x64.tar.gz"
 URL="https://nodejs.org/dist/$NODE_VERSION/$NODE_TAR"
 
