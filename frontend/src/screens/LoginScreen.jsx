@@ -138,9 +138,20 @@ const LoginScreen = ({ onNavigate, triggerToast }) => {
             <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest"><span className="bg-[var(--bg-card)] px-4 text-[var(--text-muted)]">O USANDO</span></div>
           </div>
 
-          <Button variant="google" onClick={() => setShowGoogleModal(true)}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 mr-3" alt="G" />
-            Google
+          <Button 
+            variant="google" 
+            onClick={() => {
+              triggerToast('Iniciando conexión con Google...', 'success');
+              setShowGoogleModal(true);
+            }}
+          >
+            <img 
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+              className="w-5 h-5 mr-3" 
+              alt="G" 
+              style={{ pointerEvents: 'none' }}
+            />
+            <span style={{ pointerEvents: 'none' }}>Google</span>
           </Button>
 
           <p className="text-center text-xs font-bold text-[var(--text-muted)] mt-8">
