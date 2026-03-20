@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Instagram as InstagramIcon, Youtube as YoutubeIcon } from 'lucide-react';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import Card from '../components/ui/Card';
@@ -46,12 +46,15 @@ const LearnScreen = ({ onNavigate }) => {
     setIsTyping(true);
 
     try {
-      const result = await chatIA(chatInput);
-      setChatHistory([...updatedHistory, { role: 'model', text: result.respuesta || "Me quedé sin conexión." }]);
-    } catch (err) {
-      setChatHistory([...updatedHistory, { role: 'model', text: err.message || "Error conectando con la IA." }]);
+      // Use existing chatIA from lib/api but provide context if possible
+      const contextStr = updatedHistory.slice(-5).map(m => `${m.role === 'user' ? 'Usuario' : 'Manguito'}: ${m.text}`).join('\n');
+      const result = await chatIA(`Historial reciente:\n${contextStr}\n\nResponde como Manguito.`);
+      setChatHistory([...updatedHistory, { role: 'model', text: result.respuesta || "Uy, tuve un problemita técnico. ¡Intentá de nuevo!" }]);
+    } catch (error) {
+       setChatHistory([...updatedHistory, { role: 'model', text: "Uy, tuve un problemita técnico. ¡Intentá de nuevo!" }]);
+    } finally {
+      setIsTyping(false);
     }
-    setIsTyping(false);
   };
 
   return (
@@ -64,7 +67,7 @@ const LearnScreen = ({ onNavigate }) => {
         </div>
         <div className="flex gap-2.5 overflow-x-auto pb-4 -mx-6 px-6 no-scrollbar snap-x">
           {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-5 py-3.5 rounded-[20px] font-bold text-sm whitespace-nowrap snap-start transition-all duration-300 ${activeTab === tab.id ? 'bg-[#FDBC3C] text-[#221F26] shadow-lg shadow-[#FDBC3C]/20 scale-105' : 'bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-color)] shadow-sm'}`}>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-5 py-3.5 rounded-[20px] font-bold text-sm whitespace-nowrap snap-start transition-all duration-300 ${activeTab === tab.id ? 'bg-[#FDBC3C] text-[#221F26] shadow-lg shadow-[#FDBC3C]/20 scale-105' : 'bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-color)] shadow-sm hover:-translate-y-0.5'}`}>
               <span className="text-xl flex items-center justify-center">{tab.icon}</span> {tab.label}
             </button>
           ))}
@@ -80,6 +83,7 @@ const LearnScreen = ({ onNavigate }) => {
                 </div>
                 <div className="p-5 h-[380px] flex flex-col justify-between bg-[var(--bg-base)] relative theme-transition">
                   <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_center,_#221F26_1px,_transparent_1px)] dark:bg-[radial-gradient(circle_at_center,_#FFFFFF_1px,_transparent_1px)] bg-[length:20px_20px]"></div>
+                  
                   <div ref={chatContainerRef} className="flex-1 overflow-y-auto mb-4 space-y-3 pr-2 relative z-10">
                     {chatHistory.map((msg, i) => (
                       <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -96,13 +100,14 @@ const LearnScreen = ({ onNavigate }) => {
                       </div>
                     )}
                   </div>
+                  
                   <div className="relative mt-2 z-10">
-                    <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendChat()} placeholder="Preguntale a Mango... ✨" className="w-full bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-[24px] py-4.5 pl-6 pr-16 text-sm outline-none focus:border-[#FDBC3C] transition-all duration-300 placeholder:text-[var(--text-muted)] font-medium text-[var(--text-main)]" />
+                    <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendChat()} placeholder="Preguntale a Mango... ✨" className="w-full bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-[24px] py-4.5 pl-6 pr-16 text-sm outline-none focus:border-[#FDBC3C] transition-all duration-300 placeholder:text-[var(--text-muted)] font-medium text-[var(--text-main)] shadow-sm" />
                     <button onClick={handleSendChat} disabled={isTyping || !chatInput.trim()} className="absolute right-2 top-2 bottom-2 aspect-square bg-[#FDBC3C] hover:bg-[#E5A82F] disabled:opacity-50 transition-all duration-300 text-[#221F26] rounded-[18px] flex items-center justify-center shadow-sm active:scale-95"><Send size={20} className="ml-0.5" /></button>
                   </div>
                 </div>
               </div>
-              <div onClick={() => onNavigate('pro')} className="mt-4 bg-gradient-to-r from-[#9D50FF] to-[#8B3DED] rounded-[28px] p-5 text-white flex items-center justify-between shadow-[0_8px_24px_rgba(157,80,255,0.3)] group cursor-pointer hover:shadow-[0_12px_30px_rgba(157,80,255,0.4)] transition-all animate-in slide-in-from-bottom-4 duration-500 delay-100">
+              <div onClick={() => onNavigate('pro')} className="mt-4 bg-gradient-to-r from-[#9D50FF] to-[#8B3DED] rounded-[28px] p-5 text-white flex items-center justify-between shadow-[0_8px_24px_rgba(157,80,255,0.3)] group cursor-pointer hover:shadow-[0_12px_30px_rgba(157,80,255,0.4)] transition-all animate-in slide-in-from-bottom-4 duration-500 delay-100 hover:-translate-y-1">
                 <div>
                   <p className="font-black text-sm mb-0.5 group-hover:text-[#D6B5FF] transition-colors">¿Necesitás más consultas?</p>
                   <p className="text-xs font-medium text-white/80">Ilimitadas por $6.999 ARS/mes</p>
@@ -121,14 +126,14 @@ const LearnScreen = ({ onNavigate }) => {
             </div>
           )}
           {(activeTab === 'instagram' || activeTab === 'youtube') && (
-            <Card className="flex flex-col items-center text-center py-14 mt-2 animate-in fade-in slide-in-from-right-8 duration-500 border-0 shadow-[0_12px_40px_rgba(0,0,0,0.04)]">
+            <Card className="flex flex-col items-center text-center py-14 mt-2 animate-in fade-in slide-in-from-right-8 duration-500 border-0 shadow-[0_12px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_50px_rgba(0,0,0,0.08)] transition-all">
               <div className="w-24 h-24 mb-6 relative transform transition-transform hover:scale-110 duration-500 flex items-center justify-center">
                 {activeTab === 'instagram' ? <InstagramLogo className="w-full h-full drop-shadow-md" /> : <YouTubeLogo className="w-full h-full drop-shadow-md" />}
               </div>
               <h3 className="text-3xl font-black text-[var(--text-main)] mb-3 tracking-tight">{activeTab === 'instagram' ? 'Recomendación Diaria' : 'Canal en Alta'}</h3>
               <p className="text-base text-[var(--text-muted)] mb-10 px-4 leading-relaxed font-medium">{activeTab === 'instagram' ? 'Exponente rotativo cada 24hs para dominar áreas distintas de tus finanzas.' : 'Video y contenido extenso rotativo sobre tácticas de inversión por día.'}</p>
-              <button className="border-2 border-[var(--border-color)] rounded-[28px] py-6 px-8 w-full max-w-[280px] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group bg-[var(--bg-card)]">
-                <p className="font-black text-[var(--text-main)] text-2xl mb-1 transition-colors tracking-tight">{activeTab === 'instagram' ? '@ramiromarra' : 'El Arte de Invertir'}</p>
+              <button className="border-2 border-[var(--border-color)] rounded-[28px] py-6 px-8 w-full max-w-[280px] hover:border-[#FFCE45] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group bg-[var(--bg-card)]">
+                <p className="font-black text-[var(--text-main)] text-2xl mb-1 group-hover:text-[#FFCE45] transition-colors tracking-tight">{activeTab === 'instagram' ? '@ramiromarra' : 'El Arte de Invertir'}</p>
                 <p className="text-sm text-[var(--text-muted)] font-bold uppercase tracking-wider mt-2">{activeTab === 'instagram' ? 'Economía y Mercados' : 'Inversión en Bolsa'}</p>
               </button>
             </Card>

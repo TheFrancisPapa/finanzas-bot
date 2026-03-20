@@ -10,13 +10,17 @@ const useLocalState = (key, initialValue) => {
     }
   });
 
-  useEffect(() => {
+  const setValue = (value) => {
     try {
-      window.localStorage.setItem(key, JSON.stringify(state));
-    } catch (error) { /* silently fail */ }
-  }, [key, state]);
+      const valueToStore = value instanceof Function ? value(state) : value;
+      setState(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error("Error guardando en localStorage:", error);
+    }
+  };
 
-  return [state, setState];
+  return [state, setValue];
 };
 
 export default useLocalState;

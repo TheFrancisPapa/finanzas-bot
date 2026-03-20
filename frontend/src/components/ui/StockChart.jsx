@@ -1,6 +1,8 @@
 import React from 'react';
 import { TrendingUp } from 'lucide-react';
-import { convertCurrency } from '../../lib/utils';
+
+const EXCHANGE_RATES = { ARS: 1, USD: 1000, EUR: 1100, GBP: 1400, BRL: 200 };
+const convertCurrency = (amount, fromCurr, toCurr) => (Number(amount) * EXCHANGE_RATES[fromCurr]) / EXCHANGE_RATES[toCurr];
 
 const StockChart = ({ movements, mainCurrency }) => {
   if (!movements || movements.length === 0) {
@@ -16,8 +18,8 @@ const StockChart = ({ movements, mainCurrency }) => {
   let currentVal = chartData[chartData.length - 1];
   const recentMovs = [...movements].reverse().slice(-8); 
   recentMovs.forEach(mov => {
-    // Aquí podrías usar convertCurrency si lo pasaras por props, pero por ahora lo estimamos
-    const impact = (Number(mov.amount) / 1000) || 5; 
+    const convertedAmount = convertCurrency(mov.amount, mov.currency, mainCurrency);
+    const impact = (convertedAmount / 1000) || 5; 
     currentVal += (mov.type === 'ingreso' ? impact : -impact);
     chartData.push(currentVal);
   });

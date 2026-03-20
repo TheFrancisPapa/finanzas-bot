@@ -140,7 +140,12 @@ function App() {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'login':
-        return <LoginScreen onNavigate={(screen) => { if (screen === 'home') handleLogin(); else handleNavigate(screen); }} triggerToast={triggerToast} />;
+        return <LoginScreen 
+          onNavigate={(screen) => { if (screen === 'home') handleLogin(); else handleNavigate(screen); }} 
+          triggerToast={triggerToast} 
+          isRegistered={!!userProfile.email}
+          userProfile={userProfile}
+        />;
       case 'register':
         return <OnboardingFlow onFinish={handleOnboardingFinish} onBack={() => handleNavigate('login')} mode="manual" />;
       case 'home':
@@ -163,7 +168,7 @@ function App() {
       case 'conexion_bancaria':
         return <ConexionBancariaScreen onNavigate={handleNavigate} />;
       case 'presupuestos':
-        return <PresupuestosMetasScreen onNavigate={handleNavigate} budgets={budgets} savingsGoals={savingsGoals} onUpdateBudgets={setBudgets} onUpdateGoals={setSavingsGoals} />;
+        return <PresupuestosMetasScreen onNavigate={handleNavigate} budgets={budgets} savingsGoals={savingsGoals} movements={movements} userProfile={userProfile} onUpdateBudgets={setBudgets} onUpdateGoals={setSavingsGoals} />;
       case 'categorias':
         return <CategoriasScreen onNavigate={handleNavigate} categories={categories} setCategories={setCategories} />;
       case 'modo_pareja':
