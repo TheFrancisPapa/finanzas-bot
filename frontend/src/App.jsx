@@ -7,12 +7,7 @@ import {
   Sparkles, TrendingUp, ShieldCheck, AlertCircle, Moon, Sun, KeyRound, CloudOff, Cloud
 } from 'lucide-react';
 
-// Mock de seguridad para que el entorno de previsualización compile sin errores
-const useGoogleLogin = ({ onSuccess }) => {
-  return () => {
-    setTimeout(() => onSuccess({ access_token: "mock_token" }), 1000);
-  };
-};
+import { useGoogleLogin } from '@react-oauth/google';
 
 // --- CONFIGURACIÓN DE ENTORNO (PRODUCCIÓN RENDER) ---
 const CONFIG = {
@@ -206,20 +201,54 @@ const BiometricLockScreen = ({ onUnlock }) => (
 const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile, setUserProfile }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
+
+  // Hook Oficial de React OAuth Google
   const loginConGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
+      setIsLoadingGoogle(true);
       try {
-        const userInfo = { email: "usuario.prueba@gmail.com", name: "Usuario Prueba" };
-        const apiRes = await fetch(`${CONFIG.API_BASE_URL}/auth/google`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: userInfo.email, name: userInfo.name })
+        // 1. Pedimos datos a Google de forma real
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
+        const userInfo = await res.json();
+        
+        // 2. Llamada a nuestra API en Render
+        const apiRes = await fetch(`${CONFIG.API_BASE_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userInfo.email,
+            name: userInfo.name,
+            picture: userInfo.picture
+          })
+        });
+
+        if (!apiRes.ok) throw new Error('Fallo al conectar con el backend');
         const apiData = await apiRes.json();
-        if (apiData.user?.isNewUser) onNavigate('register_google', apiData.user);
-        else { setUserProfile({ ...userProfile, ...apiData.user, token: apiData.token }); onNavigate('home'); }
-      } catch (e) { onNavigate('register_google', { email: 'usuario@gmail.com', name: 'Usuario Google' }); }
-    }
+
+        // 3. Verificamos si es nuevo
+        if (apiData.user?.isNewUser) {
+          onNavigate('register_google', { email: apiData.user.email, name: apiData.user.name, picture: apiData.user.picture });
+        } else {
+          setUserProfile({ ...userProfile, ...apiData.user, token: apiData.token });
+          onNavigate('home');
+        }
+      } catch (error) {
+        console.warn("API falló, usando fallback local:", error);
+        if (isRegistered && userProfile?.email?.toLowerCase() === email.toLowerCase()) {
+          onNavigate('home');
+        } else {
+          onNavigate('register_google', { email: 'usuario@gmail.com', name: 'Usuario Google' });
+        }
+      } finally {
+        setIsLoadingGoogle(false);
+      }
+    },
+    onError: () => triggerToast('Se canceló el inicio de sesión', 'error'),
   });
+
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center p-6 text-center">
       <MangoLogo className="mb-6 w-20 h-20" />
@@ -228,7 +257,13 @@ const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile, setU
         <Input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} icon={Mail} />
         <Input placeholder="Contraseña" type="password" value={password} onChange={e=>setPassword(e.target.value)} icon={Lock} />
         <Button onClick={() => onNavigate('home')}>Entrar</Button>
-        <button onClick={() => loginConGoogle()} className="w-full py-3 border rounded-xl font-bold flex items-center justify-center gap-2">Google</button>
+        <button 
+          onClick={() => loginConGoogle()} 
+          disabled={isLoadingGoogle}
+          className="w-full py-3 border rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          {isLoadingGoogle ? <RefreshCcw className="animate-spin" size={20} /> : 'Google'}
+        </button>
       </Card>
       <button onClick={() => onNavigate('register')} className="mt-6 font-bold text-[var(--text-muted)]">Crear cuenta</button>
     </div>
