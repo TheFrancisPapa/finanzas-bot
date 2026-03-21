@@ -1,38 +1,37 @@
 import os
 from dotenv import load_dotenv
 
-# Cargamos las variables del archivo .env si existe
+# Cargar variables de entorno desde .env (útil para desarrollo local)
 load_dotenv()
 
 class Config:
-    """Clase centralizada para manejar la configuración del sistema."""
+    """
+    Clase centralizada para manejar la configuración del sistema.
+    Combina las variables originales del bot con las nuevas para la Web App.
+    """
     
-    # --- CONFIGURACIÓN DE BASE DE DATOS ---
-    # DATABASE_URL se usará en producción (Render) para PostgreSQL o similares
+    # --- Configuración Original (Bot & Servicios) ---
+    TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '')
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+    # Ajustá el modelo al que usabas originalmente si es distinto
+    MODEL_NAME = os.getenv('MODEL_NAME', 'gemini-2.0-flash') 
+    LIMITE_IA_DIARIO = int(os.getenv('LIMITE_IA_DIARIO', 20))
+    DOLAR_CACHE_TTL = int(os.getenv('DOLAR_CACHE_TTL', 3600))
+    
+    # --- Base de Datos ---
     DATABASE_URL = os.getenv('DATABASE_URL')
-    
-    # Ruta local para la base SQLite (Manguito usa esto por defecto en desarrollo)
     DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gastos.db')
     
-    # --- IA Y SERVICIOS ---
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
-    MODEL_NAME = os.getenv('MODEL_NAME', 'gemini-2.5-flash-preview-09-2025')
-    LIMITE_IA_DIARIO = int(os.getenv('LIMITE_IA_DIARIO', 20))
-    
-    # --- SEGURIDAD Y AUTENTICACIÓN ---
-    # Esta clave es VITAL para firmar los tokens de sesión. Cambiala en producción.
-    JWT_SECRET = os.getenv('JWT_SECRET', 'manguito_secreto_para_desarrollo_123')
+    # --- Autenticación y Web ---
+    JWT_SECRET = os.getenv('JWT_SECRET', 'secreto_por_defecto_para_desarrollo')
     ALGORITHM = "HS256"
-    
-    # --- INTEGRACIONES EXTERNAS ---
+
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
-    
+
     MP_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN', '')
     MP_WEBHOOK_SECRET = os.getenv('MP_WEBHOOK_SECRET', '')
-    
-    # --- CACHÉ Y TIEMPOS ---
-    DOLAR_CACHE_TTL = int(os.getenv('DOLAR_CACHE_TTL', 3600)) # 1 hora por defecto
 
-# Creamos una instancia única para importar en todo el proyecto
+# Instancia global para mantener compatibilidad con imports en otros archivos
+# Ej: from core.config import config -> config.GEMINI_API_KEY
 config = Config()
