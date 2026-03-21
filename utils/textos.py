@@ -7,44 +7,6 @@ Así logramos un Single Source of Truth para el copy del bot.
 
 # --- MENSAJES CON PERSONALIDAD ---
 
-LOGROS_DISPONIBLES = {
-    "primer_gasto": {
-        "icono": "👶",
-        "titulo": "Bautismo de Fuego",
-        "desc": "Anotaste tu primer movimiento."
-    },
-    "racha_7": {
-        "icono": "🔥",
-        "titulo": "Racha Semanal",
-        "desc": "Anotaste gastos durante 7 días seguidos."
-    },
-    "multimoneda": {
-        "icono": "🌍",
-        "titulo": "Trotamundos",
-        "desc": "Registraste un gasto en una moneda extranjera."
-    },
-    "inversor": {
-        "icono": "📈",
-        "titulo": "Lobo de Wall Street",
-        "desc": "Cargaste tu primer activo al portafolio de inversiones."
-    },
-    "modo_flash": {
-        "icono": "⚡",
-        "titulo": "Flash",
-        "desc": "El bot aprendió una regla y categorizó un gasto automáticamente."
-    },
-    "racha_14": {
-        "icono": "💪",
-        "titulo": "Dos Semanas Imbatible",
-        "desc": "14 días seguidos registrando gastos."
-    },
-    "racha_30": {
-        "icono": "🏆",
-        "titulo": "Mes Perfecto",
-        "desc": "30 días seguidos. ¡Sos imparable!"
-    }
-}
-
 MENSAJES_GASTO = [
     "✅ *Anotado, crack!*",
     "✍️ *Registrado al toque*",

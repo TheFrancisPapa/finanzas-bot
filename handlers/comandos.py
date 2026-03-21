@@ -92,7 +92,6 @@ async def cmd_ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "💡 *1. Anotar Gastos Rápidos*\n"
         "Podés mandarme mensajes como si fueras un amigo:\n"
         "• ✍️ _Gasté 1500 en café_\n"
-        "• 💳 _zapatillas 60000 en 3 cuotas_\n"
         "• 🎙️ *(Audio)* _Grabá una nota de voz_\n"
         "• 📸 *(Foto)* _Mandame foto de un ticket_\n\n"
         "🛠️ *2. Comandos Principales*\n"
@@ -119,7 +118,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg += f"Conmigo podés llevar tus números al día como si chatearas con un amigo. Mirá todo lo que hago:\n\n"
     msg += f"🎙️ *Anoto todo al vuelo*: Mandame un audio (\"Gasté 5 lucas en el chino\") o una foto del ticket, y yo hago la matemática.\n"
     msg += f"🐮 *Divido las cuentas*: ¿Salieron a comer? Te calculo cuánto pone cada uno y te armo el texto para cobrarles.\n"
-    msg += f"📈 *Cuido tu plata*: Llevo tu portafolio de CEDEARs y Criptos en tiempo real.\n"
     msg += f"🧠 *Te asesoro*: Pedime un consejo sobre tus números cuando quieras en el menú de Herramientas.\n\n"
     
     if trial_activado:
@@ -166,7 +164,7 @@ async def recibir_sugerencia(update: Update, context: ContextTypes.DEFAULT_TYPE)
     nombre = update.effective_user.first_name
     
     if not context.args:
-        await update.message.reply_text("💡 Uso: `/sugerencia [Tu mensaje]`\nEj: `/sugerencia Agreguen pagos en cuotas`", parse_mode='Markdown')
+        await update.message.reply_text("💡 Uso: `/sugerencia [Tu mensaje]`\nEj: `/sugerencia Más gráficos en el resumen`", parse_mode='Markdown')
         return
     
     mensaje = " ".join(context.args)

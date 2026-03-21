@@ -207,41 +207,6 @@ async def check_servicios_variables(context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             logger.error(f"Error enviando recordatorio variable a {uid}: {e}")
 
-async def procesar_cuotas_mensuales(context: ContextTypes.DEFAULT_TYPE):
-    """
-    Job mensual que corre todos los días, pero solo procesa las cuotas
-    si es el día 1 del mes. Impacta las cuotas pendientes automáticamente.
-    """
-    if datetime.now().day != 1:
-        return
-
-    logger.info("Iniciando procesamiento de compras en cuotas (Día 1 del mes)...")
-    compras_activas = await db.get_compras_activas_cuotas()
-
-    for compra in compras_activas:
-        c_id, u_id, desc, cat, monto, totales, pagadas = compra
-
-        try:
-            # 1. Anotar el gasto del mes actual
-            nueva_cuota = pagadas + 1
-            desc_cuota = f"{desc} (Cuota {nueva_cuota}/{totales})"
-            await db.agregar_movimiento(u_id, tipo="egreso", monto=monto, categoria=cat, descripcion=desc_cuota)
-
-            # 2. Actualizar el contador en la DB
-            await db.sumar_cuota(c_id)
-
-            # 3. Avisarle al usuario
-            msg = (
-                f"💳 *¡Ya debité tu cuota del mes!*\n\n"
-                f"🛍️ _{desc}_\n"
-                f"🏷️ Cuota {nueva_cuota} de {totales}\n"
-                f"💰 Importe: *${monto:,.0f}*"
-            )
-            await context.bot.send_message(chat_id=u_id, text=msg, parse_mode='Markdown')
-
-        except Exception as e:
-            logger.error(f"Error procesando cuota {c_id} para usuario {u_id}: {e}")
-
 
 async def cierre_mensual(context: ContextTypes.DEFAULT_TYPE):
     """Se ejecuta el día 1 a las 10:00 ART. Envía el resumen del mes anterior a cada usuario."""

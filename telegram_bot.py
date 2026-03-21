@@ -20,6 +20,7 @@ from telegram.ext import (
 from telegram.request import HTTPXRequest
 
 from core.config import config
+from db import db
 from servicios import LIMITE_IA_DIARIO
 
 
@@ -52,18 +53,15 @@ from handlers.vaquita import conv_vaquita_handler
 from handlers.metas_ahorro import conv_metas_handler
 from handlers.servicios_variables import conv_variables_handler
 from handlers.reglas_flash import conv_flash_handler
-from handlers.inversiones import conv_inversiones_handler
-from handlers.logros import vista_logros
 from handlers.cuenta import menu_perfil, confirmar_borrado, ejecutar_borrado
 from core.errores import error_handler
 from handlers.callbacks import callback_handler
-from handlers.cuotas import conv_cuotas_handler
 from handlers.convivencia import conv_convivencia_handler, callback_convivencia
 from handlers.oraculo import callback_oraculo
 from handlers.jobs import (
     check_suscripciones_diarias, resumen_semanal_auto,
     recordatorio_nocturno, enviar_backup_db, enviar_tips_trial,
-    check_servicios_variables, procesar_cuotas_mensuales,
+    check_servicios_variables,
     cierre_mensual,
 )
 
@@ -143,12 +141,9 @@ def iniciar_telegram():
     app.add_handler(conv_metas_handler)
     app.add_handler(conv_variables_handler)
     app.add_handler(conv_flash_handler)
-    app.add_handler(conv_inversiones_handler)
-    app.add_handler(conv_cuotas_handler)
     app.add_handler(conv_convivencia_handler)
     app.add_handler(conv_auditoria_handler)
     
-    app.add_handler(CallbackQueryHandler(vista_logros, pattern="^menu_logros$"))
     app.add_handler(CallbackQueryHandler(menu_perfil, pattern="^menu_perfil$"))
     app.add_handler(CallbackQueryHandler(confirmar_borrado, pattern="^perfil_borrar$"))
     app.add_handler(CallbackQueryHandler(ejecutar_borrado, pattern="^perfil_ejecutar_borrado$"))
@@ -172,7 +167,6 @@ def iniciar_telegram():
     app.job_queue.run_daily(enviar_backup_db, time=time(hour=6, minute=0))                 # 03:00 ART
     app.job_queue.run_daily(enviar_tips_trial, time=time(hour=15, minute=0))               # 12:00 ART
     app.job_queue.run_daily(check_servicios_variables, time=time(hour=13, minute=30))       # 10:30 ART
-    app.job_queue.run_daily(procesar_cuotas_mensuales, time=time(hour=10, minute=0))        # 07:00 ART (Día 1)
     app.job_queue.run_daily(cierre_mensual, time=time(hour=13, minute=0))                    # 10:00 ART (Día 1)
     
     # ===============================

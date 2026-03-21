@@ -1,83 +1,38 @@
-"""
-db/repo_metas.py — Repositorio de metas de ahorro.
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from db.manager import obtener_conexion
 
-CRUD de la tabla `metas_ahorro`.
-"""
+def crear_meta_o_presupuesto(usuario_id: int, tipo: str, nombre: str, monto_objetivo: float, currency: str = 'ARS', icon: str = '🎯'):
+    """Crea una nueva meta de ahorro o un límite de presupuesto."""
+    with obtener_conexion() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute('''
+                INSERT INTO metas_presupuestos (usuario_id, tipo, nombre, monto_objetivo, currency, icon)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+            ''', (usuario_id, tipo, nombre, monto_objetivo, currency, icon))
+            nuevo_id = cursor.fetchone()['id']
+        conn.commit()
+        return nuevo_id
 
-import logging
-from db.conexion import conexion
+def obtener_metas_presupuestos(usuario_id: int, tipo: str = None):
+    """Obtiene la lista de metas o presupuestos de un usuario."""
+    with obtener_conexion() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            if tipo:
+                cursor.execute("SELECT * FROM metas_presupuestos WHERE usuario_id = %s AND tipo = %s", (usuario_id, tipo))
+            else:
+                cursor.execute("SELECT * FROM metas_presupuestos WHERE usuario_id = %s", (usuario_id,))
+            return cursor.fetchall()
 
-logger = logging.getLogger('Manguito-DB')
-
-
-class RepoMetas:
-    """Operaciones CRUD sobre metas de ahorro."""
-
-    def __init__(self):
-        pass
-
-    async def crear(self, user_id, nombre, objetivo):
-        """Crea una nueva meta de ahorro. Retorna el ID de la meta."""
-        async with conexion.get_conn() as conn:
-            meta_id = await conn.fetchval(
-                "INSERT INTO metas_ahorro (usuario_id, nombre, objetivo) VALUES ($1, $2, $3) RETURNING id",
-                user_id, nombre, objetivo
-            )
-            return meta_id
-
-    async def get_metas(self, user_id):
-        """Retorna todas las metas del usuario: [(id, nombre, objetivo, actual), ...]"""
-        async with conexion.get_conn() as conn:
-            rows = await conn.fetch(
-                "SELECT id, nombre, objetivo, actual FROM metas_ahorro WHERE usuario_id = $1 ORDER BY id",
-                user_id
-            )
-            return [(r['id'], r['nombre'], r['objetivo'], r['actual']) for r in rows]
-
-    async def get_meta_por_id(self, user_id, meta_id):
-        """Retorna una meta específica: (id, nombre, objetivo, actual) o None."""
-        async with conexion.get_conn() as conn:
-            row = await conn.fetchrow(
-                "SELECT id, nombre, objetivo, actual FROM metas_ahorro WHERE id = $1 AND usuario_id = $2",
-                meta_id, user_id
-            )
-            if row:
-                return (row['id'], row['nombre'], row['objetivo'], row['actual'])
-            return None
-
-    async def aportar(self, user_id, meta_id, monto):
-        """
-        Suma un monto al ahorro actual de la meta.
-        Retorna (nombre, actual_nuevo, objetivo) o None si no existe.
-        """
-        async with conexion.get_conn() as conn:
-            meta = await conn.fetchrow(
-                "SELECT nombre, actual, objetivo FROM metas_ahorro WHERE id = $1 AND usuario_id = $2",
-                meta_id, user_id
-            )
-            if not meta:
-                return None
-
-            nombre, actual, objetivo = meta['nombre'], meta['actual'], meta['objetivo']
-            nuevo_actual = actual + monto
-
-            await conn.execute(
-                "UPDATE metas_ahorro SET actual = $1 WHERE id = $2 AND usuario_id = $3",
-                nuevo_actual, meta_id, user_id
-            )
-            return (nombre, nuevo_actual, objetivo)
-
-    async def borrar(self, user_id, meta_id):
-        """Borra una meta. Retorna el nombre si existía, None si no."""
-        async with conexion.get_conn() as conn:
-            meta = await conn.fetchrow(
-                "SELECT nombre FROM metas_ahorro WHERE id = $1 AND usuario_id = $2",
-                meta_id, user_id
-            )
-            if meta:
-                await conn.execute(
-                    "DELETE FROM metas_ahorro WHERE id = $1 AND usuario_id = $2",
-                    meta_id, user_id
-                )
-                return meta['nombre']
-            return None
+def actualizar_progreso_meta(meta_id: int, usuario_id: int, monto_a_sumar: float):
+    """Suma (o resta) dinero al progreso actual de una meta."""
+    with obtener_conexion() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+                UPDATE metas_presupuestos 
+                SET monto_actual = monto_actual + %s
+                WHERE id = %s AND usuario_id = %s
+            ''', (monto_a_sumar, meta_id, usuario_id))
+            modificados = cursor.rowcount
+        conn.commit()
+        return modificados > 0
