@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Home, DollarSign, Plus, BookOpen, MoreHorizontal, 
-  Bell, ChevronRight, ArrowUpRight, ArrowDownRight, 
+import {
+  Home, DollarSign, Plus, BookOpen, MoreHorizontal,
+  Bell, ChevronRight, ArrowUpRight, ArrowDownRight,
   Eye, EyeOff, Sparkles, TrendingUp, Camera, Trash2, Pencil,
   Mail, Lock, User, CheckCircle2, ShieldCheck, AlertCircle,
   Settings, LockKeyhole, KeyRound, Smartphone, Target,
@@ -14,7 +14,7 @@ import {
 
 const CONFIG = {
   API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000/api' : '/api',
-  IS_LOCAL_MODE: false 
+  IS_LOCAL_MODE: false
 };
 
 const EXCHANGE_RATES = { ARS: 1, USD: 1000, EUR: 1100, GBP: 1400, BRL: 200 };
@@ -27,7 +27,7 @@ const useLocalState = (key, initialValue) => {
     } catch (error) { return initialValue; }
   });
   useEffect(() => {
-    try { window.localStorage.setItem(key, JSON.stringify(state)); } catch (e) {}
+    try { window.localStorage.setItem(key, JSON.stringify(state)); } catch (e) { }
   }, [key, state]);
   return [state, setState];
 };
@@ -46,7 +46,7 @@ const apiFetch = async (endpoint, options = {}) => {
 };
 
 const callGeminiText = async (prompt) => {
-  const apiKey = ""; 
+  const apiKey = "";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -60,7 +60,8 @@ const callGeminiText = async (prompt) => {
 };
 
 const ThemeStyles = () => (
-  <style dangerouslySetInnerHTML={{__html: `
+  <style dangerouslySetInnerHTML={{
+    __html: `
     :root { 
       --bg-base: #FFFBF2; --bg-card: #FFFFFF; --text-main: #221F26; --text-muted: #8B7C72; 
       --border-color: #F3F4F6; --input-bg: rgba(249, 250, 251, 0.8); --nav-bg: rgba(255, 255, 255, 0.85);
@@ -84,8 +85,8 @@ const MangoLogo = ({ className = "w-12 h-12" }) => (
       <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#99CF43" /><stop offset="100%" stopColor="#639639" /></linearGradient>
       <linearGradient id="bodyGrad" x1="10%" y1="0%" x2="90%" y2="100%"><stop offset="0%" stopColor="#99CF43" /><stop offset="30%" stopColor="#FFCE45" /><stop offset="60%" stopColor="#FDBC3C" /><stop offset="85%" stopColor="#E53E3E" /><stop offset="100%" stopColor="#9D50FF" /></linearGradient>
     </defs>
-    <path d="M105 75 C 110 45, 150 45, 155 60 C 160 75, 140 95, 120 90 C 110 88, 105 80, 105 75 Z" fill="url(#leafGrad)" stroke="#221F26" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M100 65 C 135 60, 160 100, 140 145 C 120 185, 60 180, 50 145 C 40 110, 60 85, 80 75 C 88 70, 95 66, 100 65 Z" fill="url(#bodyGrad)" stroke="#221F26" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M105 75 C 110 45, 150 45, 155 60 C 160 75, 140 95, 120 90 C 110 88, 105 80, 105 75 Z" fill="url(#leafGrad)" stroke="#221F26" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M100 65 C 135 60, 160 100, 140 145 C 120 185, 60 180, 50 145 C 40 110, 60 85, 80 75 C 88 70, 95 66, 100 65 Z" fill="url(#bodyGrad)" stroke="#221F26" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -129,13 +130,13 @@ const Header = ({ title = "Manguito", userName = "Amigo", showGreeting = false, 
         <button onClick={onNavigate} className="w-10 h-10 flex items-center justify-center text-[var(--text-main)] bg-white rounded-full shadow-sm border border-[var(--border-color)] hover:border-[#FFCE45] active:scale-90">
           <ChevronRight className="rotate-180" size={24} />
         </button>
-      ) : ( <MangoLogo className="w-10 h-10" /> )}
+      ) : (<MangoLogo className="w-10 h-10" />)}
       <div>
         {showGreeting && <p className="text-xs font-bold text-[var(--text-muted)]">¡Hola, {userName}!</p>}
         <span className="text-xl font-black tracking-tight">{title}</span>
       </div>
     </div>
-    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-[var(--border-color)] shadow-sm"><Bell size={20}/></button>
+    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-[var(--border-color)] shadow-sm"><Bell size={20} /></button>
   </header>
 );
 
@@ -148,7 +149,7 @@ const BottomNav = ({ activeTab, onNavigate }) => (
       <DollarSign size={24} /><span className="text-[10px] font-bold">Movimientos</span>
     </button>
     <button onClick={() => onNavigate('new_movement')} className="w-14 h-14 bg-[#FFCE45] rounded-2xl flex items-center justify-center -mt-10 shadow-lg active:scale-90 transition-transform">
-      <Plus size={32} strokeWidth={3}/>
+      <Plus size={32} strokeWidth={3} />
     </button>
     <button onClick={() => onNavigate('learn')} className={`flex flex-col items-center gap-1.5 ${activeTab === 'learn' ? 'text-[#FDBC3C]' : 'text-[var(--text-muted)]'}`}>
       <BookOpen size={24} /><span className="text-[10px] font-bold">Aprender</span>
@@ -161,7 +162,7 @@ const BottomNav = ({ activeTab, onNavigate }) => (
 
 const formatMoney = (val, currency = 'ARS') => {
   const symbols = { ARS: '$', USD: 'US$', EUR: '€' };
-  return `${symbols[currency] || '$'} ${Math.abs(val).toLocaleString('es-AR', {minimumFractionDigits: 2})}`;
+  return `${symbols[currency] || '$'} ${Math.abs(val).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
 };
 
 const convertCurrency = (amount, fromCurr, toCurr) => (Number(amount) * EXCHANGE_RATES[fromCurr]) / EXCHANGE_RATES[toCurr];
@@ -174,94 +175,274 @@ const convertCurrency = (amount, fromCurr, toCurr) => (Number(amount) * EXCHANGE
 const LoginScreen = ({ onNavigate, triggerToast, isRegistered, userProfile, setUserProfile }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const handleLogin = () => { 
+
+  const handleLogin = () => {
     if (!isRegistered || !userProfile) return triggerToast('Creá tu cuenta primero', 'error');
     if (email.toLowerCase().trim() !== userProfile.email?.toLowerCase().trim() || password !== userProfile.password) return triggerToast('Email o contraseña incorrectos', 'error');
-    onNavigate('home'); 
+    onNavigate('home');
   };
+
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center p-6 pb-12 relative overflow-hidden">
-      <div className="mb-8 text-center animate-in fade-in slide-in-from-bottom-8">
-        <div className="w-32 h-32 bg-white rounded-[40px] flex items-center justify-center mb-6 shadow-lg mx-auto border border-[var(--border-color)]">
-          <MangoLogo className="w-20 h-20" />
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ backgroundColor: 'var(--bg-base)' }}>
+      {/* Fondo decorativo */}
+      <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-[#99CF43] rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
+      <div className="absolute top-[10%] right-[-10%] w-72 h-72 bg-[#FFCE45] rounded-full mix-blend-multiply filter blur-[80px] opacity-20"></div>
+
+      <div className="flex-1 flex flex-col items-center justify-center p-8 z-10 w-full max-w-md mx-auto animate-in fade-in duration-700">
+
+        <div className="mb-10 text-center flex flex-col items-center">
+          <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-xl border border-gray-100 transform -rotate-6 hover:rotate-0 transition-transform duration-300">
+            <MangoLogo className="w-16 h-16" />
+          </div>
+          <h1 className="text-5xl font-black mb-2 tracking-tighter" style={{ color: 'var(--text-main)' }}>Manguito</h1>
+          <p className="font-medium text-lg" style={{ color: 'var(--text-muted)' }}>Tus finanzas, al fin domadas.</p>
         </div>
-        <h1 className="text-5xl font-black mb-2 tracking-tight">Manguito</h1>
+
+        <div className="w-full bg-white/60 backdrop-blur-xl rounded-[40px] p-8 border border-white/40 shadow-2xl">
+          <h2 className="text-xl font-bold mb-6 text-center" style={{ color: 'var(--text-main)' }}>Iniciá sesión</h2>
+
+          <div className="space-y-4 mb-6">
+            <Input placeholder="Correo electrónico" icon={Mail} value={email} onChange={e => setEmail(e.target.value)} />
+            <Input placeholder="Contraseña" type="password" icon={LockKeyhole} value={password} onChange={e => setPassword(e.target.value)} />
+          </div>
+
+          <Button onClick={handleLogin} className="text-lg py-4 shadow-[#FFCE45]/30">Entrar</Button>
+
+          <div className="my-8 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gray-200"></div>
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">O continuá con</span>
+            <div className="h-px flex-1 bg-gray-200"></div>
+          </div>
+
+          {/* Botón de Google Minimalista */}
+          <button
+            onClick={() => onNavigate('home')}
+            className="w-full py-3.5 px-6 bg-white border border-gray-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 active:scale-95 transition-all shadow-sm group"
+          >
+            <svg className="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+            </svg>
+            <span className="font-bold text-gray-700">Google</span>
+          </button>
+        </div>
+
+        <p className="mt-8 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+          ¿Sos nuevo por acá? {' '}
+          <button onClick={() => onNavigate('register')} className="font-black text-[#FFCE45] hover:underline decoration-2 underline-offset-4">
+            Creá tu cuenta
+          </button>
+        </p>
       </div>
-      <div className="w-full max-w-md bg-white rounded-[40px] p-8 border border-[var(--border-color)] shadow-[var(--card-shadow)]">
-        <Input placeholder="correo@ejemplo.com" icon={Mail} value={email} onChange={e=>setEmail(e.target.value)} className="mb-4" />
-        <Input placeholder="Contraseña" type="password" icon={Lock} value={password} onChange={e=>setPassword(e.target.value)} className="mb-6" />
-        <Button onClick={handleLogin}>Entrar</Button>
-        <div className="my-6 text-center text-[10px] font-black uppercase text-[var(--text-muted)]">o</div>
-        <Button variant="google" onClick={() => onNavigate('home')}>Continuar con Google</Button>
-      </div>
-      <button onClick={() => onNavigate('register')} className="mt-8 font-black text-sm">¿Sos nuevo? Creá tu cuenta gratis</button>
     </div>
   );
 };
 
 const OnboardingFlow = ({ onFinish, onBack, mode = 'manual' }) => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', dob: '', mainCurrency: 'ARS' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', mainCurrency: 'ARS' });
+
   const steps = [
-    { id: 'data', title: '¡Hola!\nVamos a conocerte', desc: 'Ingresá tu nombre y correo' },
-    { id: 'pass', title: 'Tu seguridad\nes clave 🔒', desc: 'Creá una contraseña' },
-    { id: 'currency', title: 'Último paso', desc: '¿En qué moneda querés tu balance?' }
+    { id: 'data', title: '¡Hola! 👋\nVamos a conocerte', desc: 'Ingresá tu nombre y correo para arrancar.' },
+    { id: 'pass', title: 'Tu seguridad\nes clave 🔒', desc: 'Creá una contraseña que no te olvides.' },
+    { id: 'currency', title: 'Último detalle 💸', desc: '¿En qué moneda querés ver tu plata?' }
   ];
-  if (step > steps.length) { onFinish(formData); return null; }
+
+  if (step > steps.length) {
+    onFinish(formData);
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] p-6 flex flex-col">
-      <header className="py-6"><button onClick={onBack}><ChevronRight className="rotate-180"/></button></header>
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto step-animate" key={step}>
-        <h2 className="text-4xl font-black mb-3 whitespace-pre-line">{steps[step-1].title}</h2>
-        <p className="text-[var(--text-muted)] mb-8 text-lg">{steps[step-1].desc}</p>
-        {step === 1 && <><Input placeholder="Nombre" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="mb-4"/><Input placeholder="Email" value={formData.email} onChange={e=>setFormData({...formData, email: e.target.value})}/></>}
-        {step === 2 && <Input placeholder="Contraseña" type="password" value={formData.password} onChange={e=>setFormData({...formData, password: e.target.value})}/>}
-        {step === 3 && <div className="grid grid-cols-2 gap-3">{['ARS', 'USD', 'EUR', 'BRL'].map(c=><button key={c} onClick={()=>setFormData({...formData, mainCurrency:c})} className={`p-5 rounded-2xl border-2 font-black ${formData.mainCurrency===c?'border-[#FFCE45]':'border-gray-100'}`}>{c}</button>)}</div>}
-        <Button onClick={()=>setStep(step+1)} className="mt-10">Continuar</Button>
+    <div className="min-h-screen flex flex-col p-6 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-base)' }}>
+      {/* Barra de progreso */}
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-gray-100">
+        <div
+          className="h-full bg-[#FFCE45] transition-all duration-500 ease-out"
+          style={{ width: `${(step / steps.length) * 100}%` }}
+        ></div>
+      </div>
+
+      <header className="py-6 flex items-center z-10">
+        <button onClick={() => step > 1 ? setStep(step - 1) : onBack()} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200 hover:border-[#FFCE45] transition-colors">
+          <ChevronRight className="rotate-180 text-gray-600" size={20} />
+        </button>
+      </header>
+
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full z-10 step-animate" key={step}>
+        <h2 className="text-4xl font-black mb-4 whitespace-pre-line leading-tight" style={{ color: 'var(--text-main)' }}>{steps[step - 1].title}</h2>
+        <p className="text-lg font-medium mb-10" style={{ color: 'var(--text-muted)' }}>{steps[step - 1].desc}</p>
+
+        <div className="space-y-4">
+          {step === 1 && (
+            <>
+              <Input placeholder="Tu nombre o apodo" icon={User} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} autoFocus />
+              <Input placeholder="correo@ejemplo.com" icon={Mail} value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+            </>
+          )}
+
+          {step === 2 && (
+            <Input placeholder="Contraseña súper secreta" type="password" icon={KeyRound} value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} autoFocus />
+          )}
+
+          {step === 3 && (
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: 'ARS', icon: '🇦🇷', label: 'Pesos' },
+                { id: 'USD', icon: '🇺🇸', label: 'Dólares' },
+                { id: 'EUR', icon: '🇪🇺', label: 'Euros' },
+                { id: 'BRL', icon: '🇧🇷', label: 'Reales' }
+              ].map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setFormData({ ...formData, mainCurrency: c.id })}
+                  className={`p-6 rounded-[24px] border-2 font-black flex flex-col items-center gap-2 transition-all duration-300 ${formData.mainCurrency === c.id ? 'border-[#FFCE45] bg-white shadow-md transform -translate-y-1' : 'border-transparent bg-white/50 hover:bg-white text-gray-400 hover:text-gray-600'}`}
+                >
+                  <span className="text-3xl">{c.icon}</span>
+                  <span>{c.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-12">
+          <Button
+            onClick={() => setStep(step + 1)}
+            className="text-lg py-4 shadow-[#FFCE45]/20"
+            disabled={
+              (step === 1 && (!formData.name || !formData.email)) ||
+              (step === 2 && !formData.password)
+            }
+          >
+            {step === steps.length ? '¡Arrancar!' : 'Continuar'}
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
 
+
 // --- DASHBOARD ---
 const DashboardScreen = ({ onNavigate, movements = [], userProfile }) => {
   const mainCurrency = userProfile?.mainCurrency || 'ARS';
-  const totalIn = movements.filter(m=>m.type==='ingreso').reduce((a,m)=>a+m.amount,0);
-  const totalOut = movements.filter(m=>m.type==='gasto').reduce((a,m)=>a+m.amount,0);
+  const totalIn = movements.filter(m => m.type === 'ingreso').reduce((a, m) => a + m.amount, 0);
+  const totalOut = movements.filter(m => m.type === 'gasto').reduce((a, m) => a + m.amount, 0);
   const balance = totalIn - totalOut;
+  const [revealBalances, setRevealBalances] = useState(true);
+  const displayMoney = (val) => revealBalances ? formatMoney(val, mainCurrency) : `${mainCurrency === 'USD' ? 'US$' : mainCurrency === 'EUR' ? '€' : '$'} ••••••`;
 
   return (
     <div className="pb-32 animate-in fade-in duration-500">
       <Header onNavigate={onNavigate} showGreeting={true} userName={userProfile?.name?.split(' ')[0]} />
       <main className="px-6 space-y-6 mt-2">
-        <div className="bg-white rounded-[40px] p-8 text-center border border-[var(--border-color)] shadow-sm">
-          <p className="text-[var(--text-muted)] font-bold text-xs uppercase mb-2">Balance Total</p>
-          <h2 className={`text-5xl font-black tracking-tighter ${balance < 0 ? 'text-red-500' : 'text-green-600'}`}>{formatMoney(balance, mainCurrency)}</h2>
-          <div className="grid grid-cols-2 mt-8 pt-6 border-t border-gray-100">
-            <div><p className="text-[10px] font-black text-gray-400">INGRESOS</p><p className="font-bold text-green-600">{formatMoney(totalIn, mainCurrency)}</p></div>
-            <div className="border-l border-gray-100"><p className="text-[10px] font-black text-gray-400">GASTOS</p><p className="font-bold text-red-500">{formatMoney(totalOut, mainCurrency)}</p></div>
+
+        {/* Tarjeta de Balance Principal */}
+        <div className="bg-[var(--bg-card)] rounded-[40px] p-8 text-center border border-[var(--border-color)] relative overflow-hidden group theme-transition" style={{ boxShadow: 'var(--card-shadow)' }}>
+          <div className="absolute top-0 right-0 w-40 h-40 bg-[#FFCE45] rounded-full mix-blend-multiply filter blur-[70px] opacity-10 group-hover:opacity-20 transition-opacity duration-700 dark:mix-blend-screen"></div>
+
+          <div className="flex items-center justify-center gap-3 mb-2 relative z-10">
+            <p className="text-[var(--text-muted)] font-bold text-sm uppercase tracking-widest opacity-80">Balance Total</p>
+            <button onClick={() => setRevealBalances(!revealBalances)} className="text-[var(--text-muted)] hover:text-[#FFCE45] transition-colors p-1 active:scale-90">
+              {revealBalances ? <Eye size={18} /> : <EyeOff size={18} />}
+            </button>
+          </div>
+
+          <div className="h-[72px] flex items-center justify-center">
+            <h2 className={`text-[52px] font-black tracking-tighter relative z-10 drop-shadow-sm animate-in slide-in-from-bottom-4 fade-in duration-500 ${balance < 0 ? 'text-[#E53E3E]' : 'text-[#639639]'}`} key={revealBalances ? balance : 'hidden'}>
+              {displayMoney(balance)}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-[var(--border-color)] relative z-10 mt-2">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1.5 mb-1.5 opacity-80">
+                <ArrowUpRight size={14} className="text-[#639639] stroke-[4]" />
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Ingresos</p>
+              </div>
+              <span className="text-xl font-black text-[var(--text-main)]">{displayMoney(totalIn)}</span>
+            </div>
+            <div className="border-l border-[var(--border-color)] flex flex-col items-center">
+              <div className="flex items-center gap-1.5 mb-1.5 opacity-80">
+                <ArrowDownRight size={14} className="text-[#E53E3E] stroke-[4]" />
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Gastos</p>
+              </div>
+              <span className="text-xl font-black text-[var(--text-main)]">{displayMoney(totalOut)}</span>
+            </div>
           </div>
         </div>
+
+        {/* Widgets Rápidos */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="flex flex-col items-center">🔥 <span className="text-2xl font-black">3</span> <span className="text-[10px] font-bold text-gray-400">RACHA</span></Card>
-          <Card className="flex flex-col items-center">💰 <span className="text-xl font-black text-red-500">{formatMoney(totalOut, mainCurrency)}</span> <span className="text-[10px] font-bold text-gray-400">HOY</span></Card>
+          <Card className="flex flex-col items-center text-center hover:-translate-y-1.5 transition-transform duration-300 cursor-default">
+            <div className="w-14 h-14 bg-orange-50/50 dark:bg-orange-500/10 rounded-[20px] flex items-center justify-center text-2xl mb-3 shadow-inner">🔥</div>
+            <span className="text-3xl font-black text-[var(--text-main)]">3</span>
+            <span className="text-xs font-bold text-[var(--text-muted)]">Días de racha</span>
+          </Card>
+          <Card className="flex flex-col items-center text-center hover:-translate-y-1.5 transition-transform duration-300 cursor-default">
+            <div className="w-14 h-14 bg-yellow-50/50 dark:bg-yellow-500/10 rounded-[20px] flex items-center justify-center text-2xl mb-3 shadow-inner">💰</div>
+            <span className="text-2xl font-black text-[var(--text-main)] mt-1">{displayMoney(totalOut)}</span>
+            <span className="text-xs font-bold text-[var(--text-muted)] mt-1">Gastado hoy</span>
+          </Card>
         </div>
-        <div>
-          <div className="flex justify-between items-center mb-4"><h3 className="font-black">Actividad reciente</h3><button onClick={()=>onNavigate('movements')} className="text-xs font-bold text-[#FFCE45]">Ver todo</button></div>
-          <div className="space-y-3">
-            {movements.slice(0,3).map((m,i)=>(
-              <Card key={i} noPadding className="p-4 flex justify-between items-center bg-white/50 shadow-none">
-                <div className="flex items-center gap-4"><span className="text-2xl">{m.icon}</span><div><p className="font-bold text-sm">{m.category}</p><p className="text-[10px] text-gray-400">{m.description}</p></div></div>
-                <span className={`font-black ${m.type==='gasto'?'text-red-500':'text-green-600'}`}>{m.type==='gasto'?'-':'+'}{formatMoney(m.amount, m.currency)}</span>
-              </Card>
-            ))}
+
+        {/* Sección de IA */}
+        <div onClick={() => onNavigate('learn')} className="bg-gradient-to-r from-[#FFF8E7] to-[#FFF2D6] dark:from-[#3B2F1D] dark:to-[#221A0F] border border-[#FFCE45]/40 rounded-[32px] p-6 flex items-center justify-between gap-4 shadow-[0_4px_20px_rgba(255,206,69,0.1)] relative overflow-hidden group cursor-pointer hover:shadow-[0_8px_30px_rgba(255,206,69,0.2)] transition-all">
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#FFCE45]/15 to-transparent transform group-hover:scale-x-150 transition-transform origin-right"></div>
+          <div className="flex-1 relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/60 dark:bg-black/20 rounded-2xl flex items-center justify-center text-xl shadow-inner flex-shrink-0">🤖</div>
+            <div>
+              <p className="text-[var(--text-main)] font-black text-sm mb-0.5 group-hover:text-[#FDBC3C] transition-colors">¿Tenés dudas financieras?</p>
+              <p className="text-[var(--text-muted)] text-xs font-bold">Chateá con Mango IA</p>
+            </div>
           </div>
+          <button className="bg-[#FFCE45] text-[#221F26] p-3 rounded-2xl shadow-md group-hover:scale-110 group-active:scale-95 transition-transform relative z-10">
+            <ArrowUpRight size={20} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {/* Últimos Movimientos */}
+        <div>
+          <div className="flex justify-between items-center mb-4 px-2">
+            <h3 className="font-black text-[var(--text-main)] text-lg">Actividad reciente</h3>
+            <button onClick={() => onNavigate('movements')} className="text-xs font-bold text-[#FFCE45] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-1.5 rounded-lg transition-colors shadow-sm active:scale-95">Ver todo</button>
+          </div>
+
+          {movements.length === 0 ? (
+            <div className="py-10 text-center bg-[var(--bg-card)] rounded-[32px] border border-[var(--border-color)] border-dashed">
+              <div className="text-4xl mb-3 grayscale opacity-40">🌱</div>
+              <p className="text-sm text-[var(--text-muted)] font-medium">Anotá tu primer gasto para empezar.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {movements.slice(0, 3).map((m, i) => (
+                <Card key={i} noPadding className="p-4 flex justify-between items-center shadow-sm hover:-translate-y-0.5 transition-transform">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center text-xl ${m.type === 'gasto' ? 'bg-[#FFEBEB]/80 dark:bg-red-500/10' : 'bg-[#E6F4EA]/80 dark:bg-green-500/10'}`}>
+                      {m.icon || (m.type === 'gasto' ? '💸' : '💰')}
+                    </div>
+                    <div>
+                      <p className="font-bold text-[var(--text-main)] text-sm">{m.category}</p>
+                      {m.description && <p className="text-[11px] text-[var(--text-muted)] mt-0.5 font-medium">{m.description}</p>}
+                    </div>
+                  </div>
+                  <span className={`font-black ${m.type === 'gasto' ? 'text-[#E53E3E]' : 'text-[#639639]'}`}>
+                    {m.type === 'gasto' ? '-' : '+'}{formatMoney(m.amount, m.currency)}
+                  </span>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </main>
       <BottomNav activeTab="home" onNavigate={onNavigate} />
     </div>
   );
 };
+
 
 // --- MOVEMENTS ---
 const MovementsScreen = ({ onNavigate, movements = [] }) => {
@@ -272,13 +453,13 @@ const MovementsScreen = ({ onNavigate, movements = [] }) => {
       <Header onNavigate={onNavigate} title="Movimientos" />
       <main className="px-6 space-y-6 mt-2">
         <div className="bg-white p-1 rounded-2xl flex border border-gray-100">
-          {['gastos', 'ingresos', 'todos'].map(t=><button key={t} onClick={()=>setFilter(t)} className={`flex-1 py-2 rounded-xl text-xs font-bold ${filter===t?'bg-[#FFCE45] text-[#221F26]':'text-gray-400'}`}>{t.toUpperCase()}</button>)}
+          {['gastos', 'ingresos', 'todos'].map(t => <button key={t} onClick={() => setFilter(t)} className={`flex-1 py-2 rounded-xl text-xs font-bold ${filter === t ? 'bg-[#FFCE45] text-[#221F26]' : 'text-gray-400'}`}>{t.toUpperCase()}</button>)}
         </div>
         <div className="space-y-3">
-          {filtered.map((m,i)=>(
+          {filtered.map((m, i) => (
             <Card key={i} noPadding className="p-4 flex justify-between items-center">
               <div className="flex items-center gap-4"><span className="text-xl">{m.icon}</span><div><p className="font-bold text-sm">{m.category}</p><p className="text-[10px] text-gray-400">{m.description}</p></div></div>
-              <span className={`font-black ${m.type==='gasto'?'text-red-500':'text-green-600'}`}>{formatMoney(m.amount, m.currency)}</span>
+              <span className={`font-black ${m.type === 'gasto' ? 'text-red-500' : 'text-green-600'}`}>{formatMoney(m.amount, m.currency)}</span>
             </Card>
           ))}
         </div>
@@ -296,24 +477,24 @@ const NewMovementScreen = ({ onNavigate, onSave, categories }) => {
   const [desc, setDesc] = useState('');
   return (
     <div className="min-h-screen bg-[var(--bg-base)] p-6">
-      <header className="mb-8"><button onClick={()=>onNavigate('home')}><ChevronRight className="rotate-180"/></button><h2 className="text-2xl font-black mt-4">Nuevo registro</h2></header>
+      <header className="mb-8"><button onClick={() => onNavigate('home')}><ChevronRight className="rotate-180" /></button><h2 className="text-2xl font-black mt-4">Nuevo registro</h2></header>
       <div className="space-y-6">
         <div className="flex bg-white p-1 rounded-2xl border border-gray-100">
-          <button onClick={()=>setType('gasto')} className={`flex-1 py-3 rounded-xl font-bold ${type==='gasto'?'bg-red-50 text-red-500':'text-gray-400'}`}>Gasto</button>
-          <button onClick={()=>setType('ingreso')} className={`flex-1 py-3 rounded-xl font-bold ${type==='ingreso'?'bg-green-50 text-green-600':'text-gray-400'}`}>Ingreso</button>
+          <button onClick={() => setType('gasto')} className={`flex-1 py-3 rounded-xl font-bold ${type === 'gasto' ? 'bg-red-50 text-red-500' : 'text-gray-400'}`}>Gasto</button>
+          <button onClick={() => setType('ingreso')} className={`flex-1 py-3 rounded-xl font-bold ${type === 'ingreso' ? 'bg-green-50 text-green-600' : 'text-gray-400'}`}>Ingreso</button>
         </div>
         <Card className="text-center py-10">
           <p className="text-xs font-bold text-gray-400 mb-2">MONTO</p>
-          <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0.00" className="bg-transparent text-5xl font-black text-center w-full outline-none" autoFocus/>
+          <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="bg-transparent text-5xl font-black text-center w-full outline-none" autoFocus />
         </Card>
         <Card className="space-y-4">
-          <select value={cat} onChange={e=>setCat(e.target.value)} className="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none">
+          <select value={cat} onChange={e => setCat(e.target.value)} className="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none">
             <option value="">Categoría</option>
-            {categories[type].map(c=><option key={c.label} value={c.label}>{c.icon} {c.label}</option>)}
+            {categories[type].map(c => <option key={c.label} value={c.label}>{c.icon} {c.label}</option>)}
           </select>
-          <input placeholder="Nota opcional" value={desc} onChange={e=>setDesc(e.target.value)} className="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none"/>
+          <input placeholder="Nota opcional" value={desc} onChange={e => setDesc(e.target.value)} className="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none" />
         </Card>
-        <Button onClick={()=>onSave({type, amount:Number(amount), category:cat, description:desc, icon: categories[type].find(c=>c.label===cat)?.icon || '💰', currency:'ARS', date:new Date().toISOString()})}>Guardar</Button>
+        <Button onClick={() => onSave({ type, amount: Number(amount), category: cat, description: desc, icon: categories[type].find(c => c.label === cat)?.icon || '💰', currency: 'ARS', date: new Date().toISOString() })}>Guardar</Button>
       </div>
     </div>
   );
@@ -321,14 +502,14 @@ const NewMovementScreen = ({ onNavigate, onSave, categories }) => {
 
 // --- LEARN ---
 const LearnScreen = ({ onNavigate }) => {
-  const [chat, setChat] = useState([{role:'model', text:'¡Hola! Soy Mango IA. Preguntame lo que quieras sobre tus mangos.'}]);
+  const [chat, setChat] = useState([{ role: 'model', text: '¡Hola! Soy Mango IA. Preguntame lo que quieras sobre tus mangos.' }]);
   const [input, setInput] = useState('');
   const handleSend = async () => {
-    if(!input.trim()) return;
-    const newHistory = [...chat, {role:'user', text:input}];
+    if (!input.trim()) return;
+    const newHistory = [...chat, { role: 'user', text: input }];
     setChat(newHistory); setInput('');
     const res = await callGeminiText(input);
-    setChat([...newHistory, {role:'model', text:res}]);
+    setChat([...newHistory, { role: 'model', text: res }]);
   };
   return (
     <div className="pb-32">
@@ -336,9 +517,9 @@ const LearnScreen = ({ onNavigate }) => {
       <main className="px-6 space-y-4">
         <div className="bg-white rounded-3xl h-[400px] flex flex-col p-4 border border-gray-100 shadow-sm">
           <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar">
-            {chat.map((m,i)=><div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}><div className={`p-3 rounded-2xl max-w-[80%] text-sm font-bold ${m.role==='user'?'bg-[#FFCE45]':'bg-gray-100'}`}>{m.text}</div></div>)}
+            {chat.map((m, i) => <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`p-3 rounded-2xl max-w-[80%] text-sm font-bold ${m.role === 'user' ? 'bg-[#FFCE45]' : 'bg-gray-100'}`}>{m.text}</div></div>)}
           </div>
-          <div className="flex gap-2 mt-4"><input value={input} onChange={e=>setInput(e.target.value)} placeholder="Escribí acá..." className="flex-1 bg-gray-50 rounded-xl px-4 outline-none text-sm"/><button onClick={handleSend} className="bg-[#FFCE45] p-3 rounded-xl"><Send size={18}/></button></div>
+          <div className="flex gap-2 mt-4"><input value={input} onChange={e => setInput(e.target.value)} placeholder="Escribí acá..." className="flex-1 bg-gray-50 rounded-xl px-4 outline-none text-sm" /><button onClick={handleSend} className="bg-[#FFCE45] p-3 rounded-xl"><Send size={18} /></button></div>
         </div>
       </main>
       <BottomNav activeTab="learn" onNavigate={onNavigate} />
@@ -351,17 +532,17 @@ const MoreScreen = ({ onNavigate, userProfile }) => (
   <div className="pb-32">
     <Header title="Más" />
     <main className="px-6 space-y-6">
-      <Card onClick={()=>onNavigate('configurar_perfil')} className="text-center flex flex-col items-center">
-        <div className="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center text-white mb-4"><User size={40}/></div>
+      <Card onClick={() => onNavigate('configurar_perfil')} className="text-center flex flex-col items-center">
+        <div className="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center text-white mb-4"><User size={40} /></div>
         <h3 className="font-black text-xl">{userProfile?.name}</h3>
         <p className="text-xs text-gray-400 font-bold">{userProfile?.email}</p>
       </Card>
       <Card className="!p-2 space-y-1">
-        <button onClick={()=>onNavigate('presupuestos')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">🎯 Presupuestos <ChevronRight size={18}/></button>
-        <button onClick={()=>onNavigate('categorias')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">⚙️ Categorías <ChevronRight size={18}/></button>
-        <button onClick={()=>onNavigate('cotizaciones')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">💵 Cotizaciones <ChevronRight size={18}/></button>
+        <button onClick={() => onNavigate('presupuestos')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">🎯 Presupuestos <ChevronRight size={18} /></button>
+        <button onClick={() => onNavigate('categorias')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">⚙️ Categorías <ChevronRight size={18} /></button>
+        <button onClick={() => onNavigate('cotizaciones')} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl font-bold">💵 Cotizaciones <ChevronRight size={18} /></button>
       </Card>
-      <div onClick={()=>onNavigate('pro')} className="bg-gradient-to-br from-purple-900 to-black p-8 rounded-[40px] text-white text-center cursor-pointer shadow-xl">
+      <div onClick={() => onNavigate('pro')} className="bg-gradient-to-br from-purple-900 to-black p-8 rounded-[40px] text-white text-center cursor-pointer shadow-xl">
         <h3 className="text-xl font-black mb-4">Pasate a PRO</h3>
         <Button>Activar Beneficios 🚀</Button>
       </div>
@@ -410,9 +591,9 @@ function AppContent() {
   };
 
   const renderScreen = () => {
-    switch(currentScreen) {
-      case 'login': return <LoginScreen onNavigate={setCurrentScreen} triggerToast={showToast} userProfile={userProfile} isRegistered={!!userProfile}/>;
-      case 'register': return <OnboardingFlow onFinish={(d)=>{setUserProfile(d); setCurrentScreen('home')}} onBack={()=>setCurrentScreen('login')}/>;
+    switch (currentScreen) {
+      case 'login': return <LoginScreen onNavigate={setCurrentScreen} triggerToast={showToast} userProfile={userProfile} isRegistered={!!userProfile} />;
+      case 'register': return <OnboardingFlow onFinish={(d) => { setUserProfile(d); setCurrentScreen('home') }} onBack={() => setCurrentScreen('login')} />;
       case 'home': return <DashboardScreen onNavigate={setCurrentScreen} movements={movements} userProfile={userProfile} />;
       case 'movements': return <MovementsScreen onNavigate={setCurrentScreen} movements={movements} />;
       case 'new_movement': return <NewMovementScreen onNavigate={setCurrentScreen} onSave={handleSaveMovement} categories={categories} />;
